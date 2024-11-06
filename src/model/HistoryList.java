@@ -24,4 +24,13 @@ public class HistoryList {
         int start = Math.max(history.size() - limit, 0);
         return history.subList(start, history.size());
     }
+
+    @Override
+    public String toString() {
+        StringBuilder historyStr = new StringBuilder("Viewing HistoryList:\n");
+        for (HistoryItem item : history) {
+            historyStr.append(item.toString()).append("\n");
+        }
+        return historyStr.toString();
+    }
 }

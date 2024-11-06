@@ -1,13 +1,15 @@
 package model;
 
+import java.util.UUID;
+
 public class Episode {
     private String episodeName;
-    private int episodeId;
+    private UUID episodeId;
     private int episodeNumber;
 
-    public Episode(String episodeName, int episodeId, int episodeNumber) {
+    public Episode(String episodeName, int episodeNumber) {
         this.episodeName = episodeName;
-        this.episodeId = episodeId;
+        this.episodeId = UUID.randomUUID();
         this.episodeNumber = episodeNumber;
     }
 
@@ -15,7 +17,7 @@ public class Episode {
         return episodeName;
     }
 
-    public int getEpisodeId() {
+    public UUID getEpisodeId() {
         return episodeId;
     }
 

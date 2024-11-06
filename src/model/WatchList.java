@@ -2,24 +2,44 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class WatchList {
-    private List<Objects> watchList;
+    private List<Movie> movies;
+    private List<Serial> serials;
 
     public WatchList() {
-        this.watchList = new ArrayList<>();
+        this.movies = new ArrayList<>();
+        this.serials = new ArrayList<>();
     }
 
-    public void addContent(Objects content) {
-        watchList.add(content);
+    public List<Movie> getMovies() {
+        return movies;
     }
 
-    public void removeContent(Objects content) {
-        watchList.remove(content);
+    public List<Serial> getSerials() {
+        return serials;
     }
 
-    public List<Objects> getWatchList() {
-        return watchList;
+    public void addMovie(Movie movie) {
+        movies.add(movie);
+        System.out.println("Movie added to watchlist: " + movie.getTitle());
+    }
+
+    public void addSerial(Serial serial) {
+        serials.add(serial);
+        System.out.println("Serial added to watchlist: " + serial.getTitle());
+    }
+
+    public void displayWatchList() {
+        System.out.println("Your watchlist: ");
+        System.out.println("Movies:");
+        for (Movie movie : movies) {
+            System.out.println("- " + movie.getTitle());
+        }
+        System.out.println("Serials:");
+        for (Serial serial : serials) {
+            System.out.println("- " + serial.getTitle());
+        }
     }
  }
+

@@ -1,17 +1,25 @@
 package model;
 
+import java.util.UUID;
+
 public class Movie {
-    private int id;
+    private UUID id;
     private String title;
     private int duration;
+    private double rating;
 
-    public Movie(int id, String title, int duration) {
-        this.id = id;
+    public Movie(String title, int duration, double rating) {
+        this.id = UUID.randomUUID();
         this.title = title;
         this.duration = duration;
+        this.rating = rating;
     }
 
-    public int getId() {
+    public double getRating() {
+        return rating;
+    }
+
+    public UUID getId() {
         return id;
     }
 

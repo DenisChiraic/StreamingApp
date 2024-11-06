@@ -1,17 +1,7 @@
 package model;
 
-public class FreeAccount  extends Account{
-    private final int maxDevices = 1;
-
+public class FreeAccount  extends Account {
     public FreeAccount() {
-        super("Free");
-    }
-
-    @Override
-    public void setType(String type) {
-        this.type = "Free";
-    }
-    public int getMaxDevices() {
-        return maxDevices;
+        super("Free", 1);
     }
 }

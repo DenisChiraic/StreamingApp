@@ -1,16 +1,22 @@
 package model;
 
+import java.util.UUID;
+
 public class User {
-    private int id;
+    private UUID id;
     private String username;
     private String password;
     private Account account;
 
-    public User(int id, String username, String password, Account account) {
-        this.id = id;
+    public User(String username, String password, Account account) {
+        this.id = UUID.randomUUID();
         this.username = username;
         this.password = password;
-        this.account = new FreeAccount(); //Cont implicit gratuit
+        this.account = account;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public String getUsername() {
@@ -25,7 +31,4 @@ public class User {
         return account;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
-    }
 }

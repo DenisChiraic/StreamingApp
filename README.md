@@ -29,4 +29,5 @@ Funcționalități
 5.	Navigare între episoade: Utilizatorii pot accesa episodul următor.
 6.	Topuri de conținut: Utilizatorii pot vedea listele cu cele mai populare filme și seriale.
 7.	Playlisturi personalizate: Utilizatorii își pot crea și organiza propriile playlisturi.
- 
+ ![image](https://github.com/user-attachments/assets/852f7957-4270-4ee9-836d-13e7eb423a90)
+

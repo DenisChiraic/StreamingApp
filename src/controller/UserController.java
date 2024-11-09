@@ -4,6 +4,7 @@ import model.*;
 import service.UserService;
 import service.ContentService;
 
+import javax.swing.text.AbstractDocument;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,20 +34,45 @@ public class UserController {
         }
     }
 
-    public boolean logout() {
-       return false;
+    public void logout() {
+       currentUser = null;
+        System.out.println("Logout successful");
     }
 
     public void addToWatchList(Object content) {
 
     }
 
+    public void removeFromWatchList(Object content) {
+        if (content instanceof Movie) {
+            watchList.removeMovie((Movie) content);
+        } else if (content instanceof Serial) {
+            watchList.removeSerial((Serial) content);
+        } else {
+            System.out.println("Invalid content");
+        }
+    }
+
     public void displayWatchList() {
         watchList.displayWatchList();
     }
 
+    public void displayHistoryList() {
+        historyList.getHistory().forEach(System.out::println);
+    }
+
     public User getCurrentUser() {
         return currentUser;
+    }
+
+    public void watchMovie(Movie movie) {
+        System.out.println("Now playing movie: " + movie.getTitle());
+        historyList.addContent(movie.getTitle(), "Movie");
+    }
+
+    public void watchSerial(Serial serial, Episode episode) {
+        System.out.println("Now playing episode:" + episode.getEpisodeName() + " of " + serial.getTitle() + " with number " + episode.getEpisodeNumber());
+        historyList.addContent(serial.getTitle(), "Episode");
     }
 
 }

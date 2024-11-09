@@ -30,6 +30,22 @@ public class WatchList {
         System.out.println("Serial added to watchlist: " + serial.getTitle());
     }
 
+    public void removeMovie(Movie movie) {
+        if (movies.remove(movie)) {
+            System.out.println("Movie removed from watchlist: " + movie.getTitle());
+        } else {
+            System.out.println("Movie not found in watchlist: ");
+        }
+    }
+
+    public void removeSerial(Serial serial) {
+        if (serials.remove(serial)) {
+            System.out.println("Serial removed from watchlist: " + serial.getTitle());
+        } else {
+            System.out.println("Serial not found in watchlist: ");
+        }
+    }
+
     public void displayWatchList() {
         System.out.println("Your watchlist: ");
         System.out.println("Movies:");

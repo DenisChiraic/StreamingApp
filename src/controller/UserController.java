@@ -40,7 +40,13 @@ public class UserController {
     }
 
     public void addToWatchList(Object content) {
-
+        if (content instanceof Movie) {
+            watchList.addMovie((Movie) content);
+        } else if (content instanceof Serial) {
+            watchList.addSerial((Serial) content);
+        } else {
+            System.out.println("Invalid content");
+        }
     }
 
     public void removeFromWatchList(Object content) {

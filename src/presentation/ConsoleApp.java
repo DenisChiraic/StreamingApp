@@ -58,7 +58,54 @@ public class ConsoleApp {
     }
 
     private void removeFromWatchList() {
+        if (userController.getCurrentUser() != null) {
+            System.out.println("1. Remove movie / 2. Remove serial");
+            int option = scanner.nextInt();
+            if (option == 1) {
+                System.out.println("Enter the name of the movie to remove: ");
+                String movieTitle = scanner.nextLine();
+                Movie movie = contentService.getAllMovies().stream().
+                        filter(m -> m.getTitle().equals(movieTitle)).findFirst().orElse(null);
 
+                if (movie != null) {
+                    userController.removeFromWatchList(movie);
+                } else {
+                    System.out.println("Movie not found");
+                }
+            } else if (option == 2) {
+                System.out.println("Enter the name of the serial to remove: ");
+                String serialTitle = scanner.nextLine();
+                Serial serial = contentService.getAllSerials().stream().
+                        filter(s -> s.getTitle().equals(serialTitle)).findFirst().orElse(null);
+
+                if (serial != null) {
+                    userController.removeFromWatchList(serial);
+                } else {
+                    System.out.println("Serial not found");
+                }
+            } else {
+                System.out.println("Invalid option");
+            }
+        } else {
+            System.out.println("Please login first");
+        }
+    }
+
+    private void watchMovie() {
+        if (userController.getCurrentUser() != null) {
+            System.out.println("Enter the name of the movie to watch: ");
+            String movieTitle = scanner.nextLine();
+            Movie movie = contentService.getAllMovies().stream().
+                    filter(m -> m.getTitle().equals(movieTitle)).findFirst().orElse(null);
+
+            if (movie != null) {
+                userController.watchMovie(movie);
+            } else {
+                System.out.println("Movie not found");
+            }
+        } else {
+            System.out.println("Please login first");
+        }
     }
 
     private void watchEpisode() {

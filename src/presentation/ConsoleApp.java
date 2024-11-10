@@ -1,9 +1,7 @@
 package presentation;
 
 import controller.UserController;
-import model.Episode;
-import model.Movie;
-import model.Serial;
+import model.*;
 import repository.InMemoryRepo;
 import service.ContentService;
 import service.UserService;
@@ -57,25 +55,52 @@ public class ConsoleApp {
     public void start() {
         boolean running = true;
         while (running) {
-            System.out.println("\n1. LogIn\n2. View Movies and Serials\n3. Add to WatchList\n4. View WatchList\n5. Remove from WatchList\n6. Watch Movie\n7. Watch Serial\n8. View History\n9. LogOut\n0. Exit");
+            System.out.println("\n1. Register\n2. LogIn\n3. View Movies and Serials\n4. Add to WatchList\n5. View WatchList\n6. Remove from WatchList\n7. Watch Movie\n8. Watch Serial\n9. View History\n10. LogOut\n0. Exit");
             System.out.println("Choose an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
 
             switch (choice) {
-                case 1 -> login();
-                case 2 -> viewMoviesAndSerials();
-                case 3 ->addToWatchList();
-                case 4 -> viewWatchList();
-                case 5 -> removeFromWatchList();
-                case 6 -> watchMovie();
-                case 7 -> watchEpisode();
-                case 8 -> viewHistoryList();
-                case 9 -> logout();
+                case 1 -> register();
+                case 2 -> login();
+                case 3 -> viewMoviesAndSerials();
+                case 4 ->addToWatchList();
+                case 5 -> viewWatchList();
+                case 6 -> removeFromWatchList();
+                case 7 -> watchMovie();
+                case 8 -> watchEpisode();
+                case 9 -> viewHistoryList();
+                case 10 -> logout();
                 case 0 -> running = false;
                 default -> System.out.println("Invalid choice");
             }
         }
+    }
+
+    private void register() {
+        System.out.println("Enter Username: ");
+        String username = scanner.nextLine();
+        System.out.println("Enter Password: ");
+        String password = scanner.nextLine();
+
+        System.out.println("Choose account type:\n1. Free Account\n2. Premium Account");
+        int accountType = scanner.nextInt();
+        scanner.nextLine();
+
+        Account account;
+        if (accountType == 1) {
+            account = new FreeAccount();
+        } else if (accountType == 2) {
+            account = new PremiumAccount();
+        } else {
+            System.out.println("Invalid account type");
+            return;
+        }
+
+        User newUser = new User(username, password, account);
+        userController.registerUser(newUser);
+
+        System.out.println("Registration successful");
     }
 
     private void login() {
@@ -92,6 +117,8 @@ public class ConsoleApp {
             contentService.getAllMovies().forEach(movie -> System.out.println("- " + movie.getTitle()));
             System.out.println("Available Serials:");
             contentService.getAllSerials().forEach(serial -> System.out.println("- " + serial.getTitle()));
+        } else {
+            System.out.println("Please login first");
         }
     }
 
@@ -119,7 +146,7 @@ public class ConsoleApp {
                         .filter(s -> s.getTitle().equals(serialTitle)).findFirst().orElse(null);
 
                 if (serial != null) {
-                    contentService.addSerial(serial);
+                    userController.addToWatchList(serial);
                 } else {
                     System.out.println("Serial not found");
                 }
@@ -135,6 +162,7 @@ public class ConsoleApp {
         if (userController.getCurrentUser() != null) {
             System.out.println("1. Remove movie / 2. Remove serial");
             int option = scanner.nextInt();
+            scanner.nextLine();
             if (option == 1) {
                 System.out.println("Enter the name of the movie to remove: ");
                 String movieTitle = scanner.nextLine();
@@ -209,11 +237,19 @@ public class ConsoleApp {
     }
 
     private void viewWatchList() {
-        userController.displayWatchList();
+        if (userController.getCurrentUser() != null) {
+            userController.displayWatchList();
+        } else {
+            System.out.println("Please login first");
+        }
     }
 
     private void viewHistoryList() {
-        userController.displayHistoryList();
+        if (userController.getCurrentUser() != null) {
+            userController.displayHistoryList();
+        } else {
+            System.out.println("Please login first");
+        }
     }
 
     private void logout() {

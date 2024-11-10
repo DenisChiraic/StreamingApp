@@ -22,6 +22,10 @@ public class UserController {
         this.historyList = new HistoryList();
     }
 
+    public void registerUser(User newUser) {
+        userService.registerUser(newUser);
+    }
+
     public boolean login(String username, String password) {
         Optional<User> user = userService.authenticateUser(username, password);
         if (user.isPresent()) {
@@ -77,7 +81,7 @@ public class UserController {
     }
 
     public void watchSerial(Serial serial, Episode episode) {
-        System.out.println("Now playing episode:" + episode.getEpisodeName() + " of " + serial.getTitle() + " with number " + episode.getEpisodeNumber());
+        System.out.println("Now playing episode:" + episode.getEpisodeName() + " of Serial: " + serial.getTitle() + " with EpisodeNumber: " + episode.getEpisodeNumber());
         historyList.addContent(serial.getTitle(), "Episode");
     }
 

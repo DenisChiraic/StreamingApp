@@ -10,25 +10,40 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Clasa ConsoleApp reprezintă interfața de linie de comandă a aplicației,
+ * permițând utilizatorului să interacționeze cu funcționalitățile principale,
+ * inclusiv înregistrare, autentificare, vizionare de conținut, gestionarea
+ * listei de vizionare și vizualizarea istoricului.
+ */
 public class ConsoleApp {
     private UserController userController;
     private ContentService contentService;
     private Scanner scanner;
 
+    /**
+     * Constructor pentru ConsoleApp, care inițializează scannerul și serviciile.
+     */
     public ConsoleApp() {
         this.scanner = new Scanner(System.in);
         initServices();
     }
 
+    /**
+     * Inițializează serviciile de utilizator și conținut, precum și repository-urile necesare.
+     */
     private void initServices() {
         UserService userService = new UserService(new InMemoryRepo<>());
         contentService = new ContentService(new InMemoryRepo<>(), new InMemoryRepo<>());
         userController = new UserController(userService, contentService);
 
+
+        // Adăugăm exemple de filme
         contentService.addMovie(new Movie("X Man", 124, 4.3));
         contentService.addMovie(new Movie("Titanic", 186, 4.8));
         contentService.addMovie(new Movie("Lion King", 90, 4.1));
 
+        // Adăugăm exemple de seriale cu episoade
         List<Episode> gameOfThrones = Arrays.asList(
                 new Episode("Winter is Coming", 1),
                 new Episode("The Kingsroad", 2),
@@ -52,6 +67,9 @@ public class ConsoleApp {
         contentService.addSerial(new Serial("Breaking Bad", breakingBad, 4.8));
     }
 
+    /**
+     * Punctul de intrare al aplicației, care afișează meniul principal și gestionează opțiunile utilizatorului.
+     */
     public void start() {
         boolean running = true;
         while (running) {
@@ -77,6 +95,9 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * Permite utilizatorului să se înregistreze în sistem.
+     */
     private void register() {
         System.out.println("Enter Username: ");
         String username = scanner.nextLine();
@@ -96,13 +117,16 @@ public class ConsoleApp {
             System.out.println("Invalid account type");
             return;
         }
-
+        // Creăm un nou utilizator și îl adăugăm în UserService
         User newUser = new User(username, password, account);
         userController.registerUser(newUser);
 
         System.out.println("Registration successful");
     }
 
+    /**
+     * Permite utilizatorului să se autentifice în sistem.
+     */
     private void login() {
         System.out.println("Username: ");
         String username = scanner.nextLine();
@@ -111,6 +135,9 @@ public class ConsoleApp {
         userController.login(username, password);
     }
 
+    /**
+     * Afișează toate filmele și serialele disponibile.
+     */
     private void viewMoviesAndSerials() {
         if (userController.getCurrentUser() != null) {
             System.out.println("Available Movies:");
@@ -122,6 +149,9 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * Permite utilizatorului să adauge un film sau serial în lista de vizionare.
+     */
     private void addToWatchList() {
         if (userController.getCurrentUser() != null) {
             System.out.println("1. Add movie / 2. Add serial");
@@ -158,6 +188,9 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * Permite utilizatorului să elimine un film sau serial din lista de vizionare.
+     */
     private void removeFromWatchList() {
         if (userController.getCurrentUser() != null) {
             System.out.println("1. Remove movie / 2. Remove serial");
@@ -193,6 +226,9 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * Permite utilizatorului să vizioneze un film și îl adaugă în istoricul vizionărilor.
+     */
     private void watchMovie() {
         if (userController.getCurrentUser() != null) {
             System.out.println("Enter the name of the movie to watch: ");
@@ -210,6 +246,9 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * Permite utilizatorului să vizioneze un episod dintr-un serial și îl adaugă în istoricul vizionărilor.
+     */
     private void watchEpisode() {
         if (userController.getCurrentUser() != null) {
             System.out.println("Enter the name of the serial to watch: ");
@@ -236,6 +275,9 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * Afișează lista de filme sau seriale pe care utilizatorul doreste sa le vada.
+     */
     private void viewWatchList() {
         if (userController.getCurrentUser() != null) {
             userController.displayWatchList();
@@ -244,6 +286,9 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * Afișează istoricul vizionărilor utilizatorului curent.
+     */
     private void viewHistoryList() {
         if (userController.getCurrentUser() != null) {
             userController.displayHistoryList();
@@ -252,10 +297,18 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * Permite utilizatorului să se deconecteze din sistem.
+     */
     private void logout() {
         userController.logout();
     }
 
+    /**
+     * Metoda principală care pornește aplicația.
+     *
+     * @param args Argumentele liniei de comandă.
+     */
     public static void main(String[] args) {
         ConsoleApp app = new ConsoleApp();
         app.start();

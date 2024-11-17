@@ -5,6 +5,7 @@ import model.*;
 import repository.InMemoryRepo;
 import service.ContentService;
 import service.UserService;
+import model.TopList;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ConsoleApp {
     private UserController userController;
     private ContentService contentService;
     private Scanner scanner;
+    private TopList topList;
 
     /**
      * Constructor pentru ConsoleApp, care inițializează scannerul și serviciile.
@@ -37,34 +39,17 @@ public class ConsoleApp {
         contentService = new ContentService(new InMemoryRepo<>(), new InMemoryRepo<>());
         userController = new UserController(userService, contentService);
 
+        topList = new TopList();
+        updateTopList();
 
-        // Adăugăm exemple de filme
-        contentService.addMovie(new Movie("X Man", 124, 4.3));
-        contentService.addMovie(new Movie("Titanic", 186, 4.8));
-        contentService.addMovie(new Movie("Lion King", 90, 4.1));
+    }
 
-        // Adăugăm exemple de seriale cu episoade
-        List<Episode> gameOfThrones = Arrays.asList(
-                new Episode("Winter is Coming", 1),
-                new Episode("The Kingsroad", 2),
-                new Episode("Lord Snow", 3)
-        );
+    private void saveData() {
 
-        List<Episode> strangerThingsEpisodes = Arrays.asList(
-                new Episode("Chapter One: The Vanishing of Will Byers", 1),
-                new Episode("Chapter Two: The Weirdo on Maple Street", 2),
-                new Episode("Chapter Three: Holly, Jolly", 3)
-        );
+    }
 
-        List<Episode> breakingBad = Arrays.asList(
-                new Episode("Pilot", 1),
-                new Episode("Cat's in the bag...", 2),
-                new Episode("...And the bag's in the river", 3)
-        );
+    private void updateTopList() {
 
-        contentService.addSerial(new Serial("Game of Thrones", gameOfThrones, 4.9));
-        contentService.addSerial(new Serial("Stranger Things", strangerThingsEpisodes, 4.4));
-        contentService.addSerial(new Serial("Breaking Bad", breakingBad, 4.8));
     }
 
     /**
@@ -73,7 +58,7 @@ public class ConsoleApp {
     public void start() {
         boolean running = true;
         while (running) {
-            System.out.println("\n1. Register\n2. LogIn\n3. View Movies and Serials\n4. Add to WatchList\n5. View WatchList\n6. Remove from WatchList\n7. Watch Movie\n8. Watch Serial\n9. View History\n10. LogOut\n0. Exit");
+            System.out.println("\n1. Register\n2. LogIn\n3. View Movies and Serials\n4. Add to WatchList\n5. View WatchList\n6. Remove from WatchList\n7. Watch Movie\n8. Watch Serial\n9. View History\n10. View Top 10 Movies\n11. View Top 10 Serials\n12. LogOut\n0. Exit");
             System.out.println("Choose an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -88,7 +73,9 @@ public class ConsoleApp {
                 case 7 -> watchMovie();
                 case 8 -> watchEpisode();
                 case 9 -> viewHistoryList();
-                case 10 -> logout();
+                case 10 -> viewTopMovies();
+                case 11 -> viewTopSerials();
+                case 12 -> logout();
                 case 0 -> running = false;
                 default -> System.out.println("Invalid choice");
             }
@@ -311,6 +298,28 @@ public class ConsoleApp {
     private void viewHistoryList() {
         if (userController.getCurrentUser() != null) {
             userController.displayHistoryList();
+        } else {
+            System.out.println("Please login first");
+        }
+    }
+
+    /**
+     * Afiseaza top 10 filme.
+     */
+    private void viewTopMovies() {
+        if (userController.getCurrentUser() != null) {
+            topList.displayTopMovies();
+        } else {
+            System.out.println("Please login first");
+        }
+    }
+
+    /**
+     * Afiseaza top 10 seriale.
+     */
+    private void viewTopSerials() {
+        if (userController.getCurrentUser() != null) {
+            topList.displayTopSerials();
         } else {
             System.out.println("Please login first");
         }

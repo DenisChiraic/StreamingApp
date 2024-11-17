@@ -27,6 +27,7 @@ public class DataManager {
 
             for (Movie movie : movies) {
                 String line = String.format("%s,%s,%d,%.1f",
+                        movie.getId(),
                         movie.getTitle(),
                         movie.getDuration(),
                         movie.getRating());
@@ -60,5 +61,66 @@ public class DataManager {
             System.out.println("Error loading movies: " + e.getMessage());
         }
         return movies;
+    }
+
+    /**
+     * Salveaza o lista de seriale intr-un CSV.
+     * @param serials Lista de seriale salvate.
+     * @param fileName Calea cater fisierul CSV unde datele vor fi salvate.
+     */
+    public static void svaeSerials(List<Serial> serials, String fileName) {
+        try (BufferedWriter wreiter = new BufferedWriter(new FileWriter(fileName))) {
+            wreiter.write("ID,Title,Rating,Episodes");
+            wreiter.newLine();
+
+            for (Serial serial : serials) {
+                String episodes = serial.getEpisodes().stream()
+                        .map(e -> e.getEpisodeName() + "," + e.getEpisodeNumber())
+                        .reduce((e1, e2) -> e1 + ";" + e2)
+                        .orElse("");
+                String line = String.format("%s,%s,%.1f,%s",
+                        serial.getSerialId(),
+                        serial.getTitle(),
+                        serial.getRating(),
+                        episodes);
+                wreiter.write(line);
+                wreiter.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving serials: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Încarcă o listă de seriale dintr-un fișier CSV.
+     * @param fileName Calea către fișierul CSV de unde datele vor fi încărcate.
+     * @return O listă de seriale încărcate din fișierul CSV.
+     */
+    public static List<Serial> loadSerials(String fileName) {
+        List<Serial> serials = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line = reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] filds = line.split(",", -1);
+                String serialId = filds[0];
+                String serialTitle = filds[1];
+                double rating = Double.parseDouble(filds[2]);
+                String episodesData = filds[3].replace("\"", "");
+
+                List<Episode> episodes = new ArrayList<>();
+                for (String episodeData : episodesData.split(";")) {
+                    String[] parts = episodeData.split(":");
+                    if (parts.length == 2) {
+                        String episodeName = parts[0].trim();
+                        int episodeNumber = Integer.parseInt(parts[1].trim());
+                        episodes.add(new Episode(episodeName, episodeNumber));
+                    }
+                }
+                serials.add(new Serial(serialTitle, episodes, rating));
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading serials: " + e.getMessage());
+        }
+        return serials;
     }
 }

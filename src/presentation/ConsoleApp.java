@@ -1,5 +1,6 @@
 package presentation;
 
+import controller.DataManager;
 import controller.UserController;
 import model.*;
 import repository.InMemoryRepo;
@@ -56,6 +57,8 @@ public class ConsoleApp {
      * Punctul de intrare al aplicației, care afișează meniul principal și gestionează opțiunile utilizatorului.
      */
     public void start() {
+//        Runtime.getRuntime().addShutdownHook(new Thread(this::saveData)); // salveaza datele la inchidere
+
         boolean running = true;
         while (running) {
             System.out.println("\n1. Register\n2. LogIn\n3. View Movies and Serials\n4. Add to WatchList\n5. View WatchList\n6. Remove from WatchList\n7. Watch Movie\n8. Watch Serial\n9. View History\n10. View Top 10 Movies\n11. View Top 10 Serials\n12. LogOut\n0. Exit");
@@ -127,10 +130,14 @@ public class ConsoleApp {
      */
     private void viewMoviesAndSerials() {
         if (userController.getCurrentUser() != null) {
+
+            List<Movie> movies = DataManager.loadMovies("movies.csv");
+            List<Serial> serials = DataManager.loadSerials("serials.csv");
+
             System.out.println("Available Movies:");
-            contentService.getAllMovies().forEach(movie -> System.out.println("- " + movie.getTitle()));
+            movies.forEach(movie -> System.out.println("- " + movie.getTitle() + " (Duration: " + movie.getDuration() + " min, Rating: " + movie.getRating() + ")"));
             System.out.println("Available Serials:");
-            contentService.getAllSerials().forEach(serial -> System.out.println("- " + serial.getTitle()));
+            serials.forEach(serial -> System.out.println("- " + serial.getTitle() + " (rating: " + serial.getRating() + ")"));
         } else {
             System.out.println("Please login first");
         }

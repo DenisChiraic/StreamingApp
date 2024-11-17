@@ -50,14 +50,15 @@ public class ConsoleApp {
 
     }
 
+    /**
+     * Salvează datele în fișiere la închiderea aplicației.
+     */
     private void saveData() {
-        DataManager.saveMovies(contentService.getAllMovies(), "movies.csv");
-        DataManager.saveSerials(contentService.getAllSerials(), "serials.csv");
 
         if (userController.getCurrentUser() != null) {
             DataManager.saveHistoryList(userController.getCurrentUser().getHistoryList(), "history.csv");
+            DataManager.saveWatchList(userController.getCurrentUser().getWatchList(), "watch.csv");
         }
-
     }
 
     /**
@@ -72,7 +73,7 @@ public class ConsoleApp {
      * Punctul de intrare al aplicației, care afișează meniul principal și gestionează opțiunile utilizatorului.
      */
     public void start() {
-//        Runtime.getRuntime().addShutdownHook(new Thread(this::saveData)); // salveaza datele la inchidere
+        Runtime.getRuntime().addShutdownHook(new Thread(this::saveData)); // salveaza datele la inchidere
 
         boolean running = true;
         while (running) {
@@ -145,14 +146,10 @@ public class ConsoleApp {
      */
     private void viewMoviesAndSerials() {
         if (userController.getCurrentUser() != null) {
-
-            List<Movie> movies = DataManager.loadMovies("movies.csv");
-            List<Serial> serials = DataManager.loadSerials("serials.csv");
-
             System.out.println("Available Movies:");
-            movies.forEach(movie -> System.out.println("- " + movie.getTitle() + " (Duration: " + movie.getDuration() + " min, Rating: " + movie.getRating() + ")"));
+            contentService.getAllMovies().forEach(movie -> System.out.println("- " + movie.getTitle()));
             System.out.println("Available Serials:");
-            serials.forEach(serial -> System.out.println("- " + serial.getTitle() + " (rating: " + serial.getRating() + ")"));
+            contentService.getAllSerials().forEach(serial -> System.out.println("- " + serial.getTitle()));
         } else {
             System.out.println("Please login first");
         }

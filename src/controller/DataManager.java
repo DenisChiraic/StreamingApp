@@ -1,11 +1,8 @@
 package controller;
 
 
-import model.HistoryList;
-import model.Movie;
-import model.Episode;
+import model.*;
 import model.Serial;
-import model.HistoryItem;
 
 import java.io.*;
 import java.util.List;
@@ -147,6 +144,27 @@ public class DataManager {
             }
         }catch (IOException e) {
             System.out.println("Error saving history list: " + e.getMessage());
+        }
+    }
+
+    public static void saveWatchList(WatchList watchList, String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write("Type,Title");
+            writer.newLine();
+
+            for (Movie movie : watchList.getMovies()) {
+                String line = String.format("Movie,%s", movie.getTitle());
+                writer.write(line);
+                writer.newLine();
+            }
+
+            for (Serial serial : watchList.getSerials()) {
+                String line = String.format("Serial,%s", serial.getTitle());
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving watch list: " + e.getMessage());
         }
     }
 }

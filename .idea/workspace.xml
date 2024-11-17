@@ -5,28 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87f60f7c-2dd6-4371-aaed-8c860e74daa8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/controller/UserController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/Account.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/Episode.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/FreeAccount.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/HistoryItem.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/HistoryList.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/Movie.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/PremiumAccount.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/Serial.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/TopList.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/model/WatchList.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/presentation/ConsoleApp.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/repository/FileRepo.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/repository/IRepo.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/repository/InMemoryRepo.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/service/ContentService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/StreamingApp/service/UserService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/controller/DataManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/DataManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/model/TopList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/TopList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/presentation/ConsoleApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/presentation/ConsoleApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/serials.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/serials.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,6 +83,8 @@
       <updated>1731864235737</updated>
       <workItem from="1731864238546" duration="4489000" />
       <workItem from="1731869616221" duration="900000" />
+      <workItem from="1731871160197" duration="29000" />
+      <workItem from="1731871196674" duration="1708000" />
     </task>
     <servers />
   </component>

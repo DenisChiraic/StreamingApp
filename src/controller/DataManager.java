@@ -1,9 +1,11 @@
 package controller;
 
 
+import model.HistoryList;
 import model.Movie;
 import model.Episode;
 import model.Serial;
+import model.HistoryItem;
 
 import java.io.*;
 import java.util.List;
@@ -68,7 +70,7 @@ public class DataManager {
      * @param serials Lista de seriale salvate.
      * @param fileName Calea cater fisierul CSV unde datele vor fi salvate.
      */
-    public static void svaeSerials(List<Serial> serials, String fileName) {
+    public static void saveSerials(List<Serial> serials, String fileName) {
         try (BufferedWriter wreiter = new BufferedWriter(new FileWriter(fileName))) {
             wreiter.write("ID,Title,Rating,Episodes");
             wreiter.newLine();
@@ -122,5 +124,29 @@ public class DataManager {
             System.out.println("Error loading serials: " + e.getMessage());
         }
         return serials;
+    }
+
+    /**
+     * Salvează istoricul vizionărilor (HistoryList) într-un fișier CSV.
+     *
+     * @param historyList Lista de istoric de salvat.
+     * @param fileName    Calea către fișierul CSV unde datele vor fi salvate.
+     */
+    public static void saveHistoryList(HistoryList historyList, String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write("Title,Type,ViewDate");
+            writer.newLine();
+
+            for (HistoryItem item : historyList.getHistory()) {
+                String line = String.format("%s,%s,%s",
+                        item.getTitle(),
+                        item.getType(),
+                        item.getViewedDate());
+                writer.write(line);
+                writer.newLine();
+            }
+        }catch (IOException e) {
+            System.out.println("Error saving history list: " + e.getMessage());
+        }
     }
 }

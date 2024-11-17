@@ -11,6 +11,8 @@ public class User {
     private String username;
     private String password;
     private Account account;
+    private WatchList watchList;
+    private HistoryList historyList;
 
     /**
      * Constructor pentru clasa User.
@@ -24,6 +26,8 @@ public class User {
         this.username = username;
         this.password = password;
         this.account = account;
+        this.watchList = new WatchList();
+        this.historyList = new HistoryList();
     }
 
     /**
@@ -62,4 +66,11 @@ public class User {
         return account;
     }
 
+    public WatchList getWatchList() {
+        return watchList;
+    }
+
+    public HistoryList getHistoryList() {
+        return historyList;
+    }
 }

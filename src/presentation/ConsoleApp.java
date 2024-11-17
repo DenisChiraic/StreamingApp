@@ -40,17 +40,32 @@ public class ConsoleApp {
         contentService = new ContentService(new InMemoryRepo<>(), new InMemoryRepo<>());
         userController = new UserController(userService, contentService);
 
+        List<Movie> movies = DataManager.loadMovies("movies.csv");
+        List<Serial> serials = DataManager.loadSerials("serials.csv");
+        movies.forEach(contentService::addMovie);
+        serials.forEach(contentService::addSerial);
+
         topList = new TopList();
         updateTopList();
 
     }
 
     private void saveData() {
+        DataManager.saveMovies(contentService.getAllMovies(), "movies.csv");
+        DataManager.saveSerials(contentService.getAllSerials(), "serials.csv");
+
+        if (userController.getCurrentUser() != null) {
+            DataManager.saveHistoryList(userController.getCurrentUser().getHistoryList(), "history.csv");
+        }
 
     }
 
+    /**
+     * Actualizează listele de topuri pentru filme și seriale.
+     */
     private void updateTopList() {
-
+        topList.updateTopMovies(contentService.getAllMovies());
+        topList.updateTopSerials(contentService.getAllSerials());
     }
 
     /**

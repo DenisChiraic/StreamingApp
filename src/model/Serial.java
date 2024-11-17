@@ -74,10 +74,14 @@ public class Serial {
 
     /**
      * Mergem la alt episode (Inca nu am implementat o sa mearga pe viitor)
-     * @param currentEpisode
+     * @param currentEpisode Episodul curent
+     * @return Urmatorul episod sau null daca nu mai exista
      */
-    public void nextEpisode(Episode currentEpisode){
-        currentEpisode.nextEpisode();
-
+    public Episode nextEpisode(Episode currentEpisode){
+        int currentIdex = episodes.indexOf(currentEpisode);
+        if (currentIdex != -1 && currentIdex < episodes.size() - 1) {
+            return episodes.get(currentIdex + 1);
+        }
+        return null;
     }
 }

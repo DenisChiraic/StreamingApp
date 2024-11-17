@@ -259,11 +259,30 @@ public class ConsoleApp {
             if (serial != null && !serial.getEpisodes().isEmpty()) {
                 System.out.println("Enter the episode to watch: ");
                 int episodeNr = scanner.nextInt();
-                Episode episode = serial.getEpisodes().stream().
+                scanner.nextLine();
+
+                Episode currentEpisode = serial.getEpisodes().stream().
                         filter(e -> e.getEpisodeNumber() == episodeNr).findFirst().orElse(null);
 
-                if (episode != null) {
-                    userController.watchSerial(serial, episode);
+                if (currentEpisode != null) {
+                    boolean continueWatching = true;
+
+                    while (currentEpisode != null && continueWatching) {
+                        userController.watchSerial(serial, currentEpisode);
+
+                        System.out.println("Do you want to watch the next episode? Press 1 for Yes, any other key to exit");
+                        String choice = scanner.nextLine();
+
+                        if (choice.equals("1")) {
+                            currentEpisode = serial.nextEpisode(currentEpisode);
+                            if (currentEpisode == null) {
+                                System.out.println("No more episodes available");
+                            }
+                        } else {
+                            continueWatching = false;
+                        }
+                    }
+
                 } else {
                     System.out.println("Episode not found");
                 }

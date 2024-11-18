@@ -7,7 +7,10 @@
     <list default="true" id="87f60f7c-2dd6-4371-aaed-8c860e74daa8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/controller/DataManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/DataManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/presentation/ConsoleApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/presentation/ConsoleApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,6 +87,8 @@
       <workItem from="1731871160197" duration="29000" />
       <workItem from="1731871196674" duration="1708000" />
       <workItem from="1731873053159" duration="2745000" />
+      <workItem from="1731876215243" duration="47000" />
+      <workItem from="1731926605898" duration="6639000" />
     </task>
     <servers />
   </component>

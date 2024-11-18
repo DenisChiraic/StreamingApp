@@ -20,6 +20,7 @@ public class User {
      * @param username Numele de utilizator.
      * @param password Parola utilizatorului.
      * @param account  Tipul de cont asociat utilizatorului.
+     *
      */
     public User(String username, String password, Account account) {
         this.id = UUID.randomUUID();
@@ -28,6 +29,25 @@ public class User {
         this.account = account;
         this.watchList = new WatchList();
         this.historyList = new HistoryList();
+    }
+
+    /**
+     * Constructor pentru utilizator cu date existente.
+     *
+     * @param id         ID-ul utilizatorului.
+     * @param username   Numele de utilizator.
+     * @param password   Parola utilizatorului.
+     * @param account    Tipul de cont.
+     * @param watchList  Lista de vizionare.
+     * @param historyList Istoricul vizionărilor.
+     */
+    public User(UUID id, String username, String password, Account account, WatchList watchList, HistoryList historyList) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.account = account;
+        this.watchList = watchList;
+        this.historyList = historyList;
     }
 
     /**
@@ -66,11 +86,40 @@ public class User {
         return account;
     }
 
+    /**
+     * Returnează lista de vizionare a utilizatorului.
+     *
+     * @return Lista de vizionare.
+     */
     public WatchList getWatchList() {
         return watchList;
     }
 
+    /**
+     * Setează lista de vizionare a utilizatorului.
+     *
+     * @param watchList Lista de vizionare.
+     */
+    public void setWatchList(WatchList watchList) {
+        this.watchList = watchList;
+    }
+
+    /**
+     * Returnează istoricul vizionărilor al utilizatorului.
+     *
+     * @return Istoricul vizionărilor.
+     */
     public HistoryList getHistoryList() {
         return historyList;
     }
+
+    /**
+     * Setează istoricul vizionărilor al utilizatorului.
+     *
+     * @param historyList Istoricul vizionărilor.
+     */
+    public void setHistoryList(HistoryList historyList) {
+        this.historyList = historyList;
+    }
+
 }

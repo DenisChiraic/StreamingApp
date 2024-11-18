@@ -5,32 +5,52 @@ import service.UserService;
 import service.ContentService;
 
 import javax.swing.text.AbstractDocument;
-import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Controller pentru gestionarea utilizatorilor și conținutului.
+ */
 public class UserController {
-    private UserService userService;
-    private ContentService contentService;
+    private final UserService userService;
+    private final ContentService contentService;
     private User currentUser;
-    private WatchList watchList;
-    private HistoryList historyList;
 
+    /**
+     * Constructor pentru UserController.
+     *
+     * @param userService   Serviciul pentru gestionarea utilizatorilor.
+     * @param contentService Serviciul pentru gestionarea conținutului.
+     */
     public UserController(UserService userService, ContentService contentService) {
         this.userService = userService;
         this.contentService = contentService;
-        this.watchList = new WatchList();
-        this.historyList = new HistoryList();
     }
 
+    /**
+     * Înregistrează un utilizator nou.
+     *
+     * @param newUser Utilizatorul de înregistrat.
+     */
     public void registerUser(User newUser) {
         userService.registerUser(newUser);
     }
 
+    /**
+     * Autentifică un utilizator pe baza numelui și parolei.
+     *
+     * @param username Numele utilizatorului.
+     * @param password Parola utilizatorului.
+     * @return `true` dacă autentificarea este reușită, altfel `false`.
+     */
     public boolean login(String username, String password) {
         Optional<User> user = userService.authenticateUser(username, password);
         if (user.isPresent()) {
             currentUser = user.get();
             System.out.println("Login successful");
+
+            currentUser.setWatchList(DataManager.loadWatchList("watchlist_" + currentUser.getUsername() + ".csv"));
+            currentUser.setHistoryList(DataManager.loadHistoryList("historylist_" + currentUser.getUsername() + ".csv"));
+
             return true;
         } else {
             System.out.println("Login failed");
@@ -39,36 +59,51 @@ public class UserController {
     }
 
     public void logout() {
-       currentUser = null;
-        System.out.println("Logout successful");
+       if (currentUser != null) {
+           DataManager.saveWatchList(currentUser.getWatchList(), "watchlist_" + currentUser.getUsername() + ".csv");
+           DataManager.saveHistoryList(currentUser.getHistoryList(), "historylist_" + currentUser.getUsername() + ".csv");
+
+           currentUser = null;
+           System.out.println("Logout successful");
+       } else {
+           System.out.println("No user is currently logged in");
+       }
     }
 
     public void addToWatchList(Object content) {
-        if (content instanceof Movie) {
-            watchList.addMovie((Movie) content);
-        } else if (content instanceof Serial) {
-            watchList.addSerial((Serial) content);
-        } else {
-            System.out.println("Invalid content");
+        if (currentUser != null) {
+            if (content instanceof Movie) {
+                currentUser.getWatchList().addMovie((Movie) content);
+            } else if (content instanceof Serial) {
+                currentUser.getWatchList().addSerial((Serial) content);
+            }
         }
     }
 
     public void removeFromWatchList(Object content) {
-        if (content instanceof Movie) {
-            watchList.removeMovie((Movie) content);
-        } else if (content instanceof Serial) {
-            watchList.removeSerial((Serial) content);
-        } else {
-            System.out.println("Invalid content");
-        }
+       if (currentUser != null) {
+           if (content instanceof Movie) {
+               currentUser.getWatchList().removeMovie((Movie) content);
+           } else if (content instanceof Serial) {
+               currentUser.getWatchList().removeSerial((Serial) content);
+           }
+       }
     }
 
     public void displayWatchList() {
-        watchList.displayWatchList();
+        if (currentUser != null) {
+            currentUser.getWatchList().displayWatchList();
+        } else {
+            System.out.println("Pleas log in first");
+        }
     }
 
     public void displayHistoryList() {
-        historyList.getHistory().forEach(System.out::println);
+        if (currentUser != null) {
+            currentUser.getHistoryList().getHistory().forEach(System.out::println);
+        } else {
+            System.out.println("Pleas log in first");
+        }
     }
 
     public User getCurrentUser() {
@@ -76,13 +111,18 @@ public class UserController {
     }
 
     public void watchMovie(Movie movie) {
-        System.out.println("Now playing movie: " + movie.getTitle());
-        historyList.addContent(movie.getTitle(), "Movie");
+        if (currentUser != null) {
+            System.out.println("Now playing " + movie.getTitle());
+            currentUser.getHistoryList().addContent(movie.getTitle(), "Movie");
+        }
     }
 
     public void watchSerial(Serial serial, Episode episode) {
-        System.out.println("Now playing episode:" + episode.getEpisodeName() + " of Serial: " + serial.getTitle() + " with EpisodeNumber: " + episode.getEpisodeNumber());
-        historyList.addContent(serial.getTitle(), "Episode");
+        if (currentUser != null) {
+            System.out.println("Now playing episode:" + episode.getEpisodeName() + " of Serial: " + serial.getTitle() + " with EpisodeNumber: " + episode.getEpisodeNumber());
+            currentUser.getHistoryList().addContent(serial.getTitle(), "Episode");
+        }
+
     }
 
 }

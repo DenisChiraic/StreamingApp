@@ -8,7 +8,6 @@ import service.ContentService;
 import service.UserService;
 import model.TopList;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -20,6 +19,7 @@ import java.util.Scanner;
  */
 public class ConsoleApp {
     private UserController userController;
+    private UserService userService;
     private ContentService contentService;
     private Scanner scanner;
     private TopList topList;
@@ -36,9 +36,12 @@ public class ConsoleApp {
      * Inițializează serviciile de utilizator și conținut, precum și repository-urile necesare.
      */
     private void initServices() {
-        UserService userService = new UserService(new InMemoryRepo<>());
+        userService = new UserService(new InMemoryRepo<>());
         contentService = new ContentService(new InMemoryRepo<>(), new InMemoryRepo<>());
         userController = new UserController(userService, contentService);
+
+        List<User> users = DataManager.loadUsers("users.csv");
+        users.forEach(userController::registerUser);
 
         List<Movie> movies = DataManager.loadMovies("movies.csv");
         List<Serial> serials = DataManager.loadSerials("serials.csv");
@@ -46,7 +49,9 @@ public class ConsoleApp {
         serials.forEach(contentService::addSerial);
 
         topList = new TopList();
-        updateTopList();
+
+        topList.updateTopMovies(movies);
+        topList.updateTopSerials(serials);
 
     }
 
@@ -56,9 +61,17 @@ public class ConsoleApp {
     private void saveData() {
 
         if (userController.getCurrentUser() != null) {
-            DataManager.saveHistoryList(userController.getCurrentUser().getHistoryList(), "history.csv");
-            DataManager.saveWatchList(userController.getCurrentUser().getWatchList(), "watch.csv");
+            String username = userController.getCurrentUser().getUsername();
+
+            DataManager.saveHistoryList(
+                    userController.getCurrentUser().getHistoryList(),
+                    "history_" + username + ".csv");
+
+            DataManager.saveWatchList(
+                    userController.getCurrentUser().getWatchList(),
+                    "watchlist_" + username + ".csv");
         }
+        DataManager.saveUsers(userService.getAllUsers(), "users.csv");
     }
 
     /**
@@ -109,6 +122,10 @@ public class ConsoleApp {
         String username = scanner.nextLine();
         System.out.println("Enter Password: ");
         String password = scanner.nextLine();
+
+        if (userService.userExists(username)) {
+            System.out.println("An Account with this name already exists! Please log in.");
+        }
 
         System.out.println("Choose account type:\n1. Free Account\n2. Premium Account");
         int accountType = scanner.nextInt();
@@ -304,22 +321,14 @@ public class ConsoleApp {
      * Afișează lista de filme sau seriale pe care utilizatorul doreste sa le vada.
      */
     private void viewWatchList() {
-        if (userController.getCurrentUser() != null) {
-            userController.displayWatchList();
-        } else {
-            System.out.println("Please login first");
-        }
+        userController.displayWatchList();
     }
 
     /**
      * Afișează istoricul vizionărilor utilizatorului curent.
      */
     private void viewHistoryList() {
-        if (userController.getCurrentUser() != null) {
-            userController.displayHistoryList();
-        } else {
-            System.out.println("Please login first");
-        }
+        userController.displayHistoryList();
     }
 
     /**

@@ -167,4 +167,25 @@ public class DataManager {
             System.out.println("Error saving watch list: " + e.getMessage());
         }
     }
+
+    /**
+     * Salvează lista de utilizatori într-un fișier CSV.
+     *
+     * @param users    Lista de utilizatori de salvat.
+     * @param fileName Calea către fișierul CSV.
+     */
+    public static void saveUsers(List<User> users, String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write("Username,Password,AccountType");
+            writer.newLine();
+
+            for (User user : users) {
+                String accountType = user.getAccount() instanceof PremiumAccount ? "Premium" : "Free";
+                writer.write(String.format("%s,%s,%s", user.getUsername(), user.getPassword(), accountType));
+                writer.newLine();
+            }
+        }catch (IOException e) {
+            System.out.println("Error saving users: " + e.getMessage());
+        }
+    }
 }

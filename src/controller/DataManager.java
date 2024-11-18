@@ -3,8 +3,10 @@ package controller;
 
 import model.*;
 import model.Serial;
+import service.ContentService;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -12,7 +14,7 @@ import java.util.ArrayList;
  * Clas DataManager gestionează încărcarea și salvarea datelor din/în fișiere CSV.
  */
 public class DataManager {
-
+    private static ContentService contentService;
     /**
      * Salvează o listă de filme într-un fișier CSV.
      *
@@ -147,6 +149,32 @@ public class DataManager {
         }
     }
 
+    /**
+     * Încarcă istoricul vizionărilor (HistoryList) dintr-un fișier CSV.
+     *
+     * @param fileName Calea către fișierul CSV.
+     * @return Istoricul vizionărilor sub formă de `HistoryList`.
+     */
+    public static HistoryList loadHistoryList(String fileName) {
+        HistoryList historyList = new HistoryList();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line = reader.readLine(); // Sari peste header
+            while ((line = reader.readLine()) != null) {
+                String[] fields = line.split(",");
+                if (fields.length == 2) {
+                    String title = fields[0];
+                    String type = fields[1];
+                    historyList.addContent(title,type);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("History file not found: " + fileName + ". Starting with an empty history.");
+        } catch (IOException e) {
+            System.out.println("Error loading history list: " + e.getMessage());
+        }
+        return historyList;
+    }
+
     public static void saveWatchList(WatchList watchList, String fileName) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             writer.write("Type,Title");
@@ -169,6 +197,48 @@ public class DataManager {
     }
 
     /**
+     * Încarcă lista de vizionări (WatchList) dintr-un fișier CSV.
+     */
+    public static WatchList loadWatchList(String fileName) {
+        WatchList watchList = new WatchList();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line = reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] filds = line.split(",");
+                String type = filds[0];
+                String title = filds[1];
+
+                if ("Movie".equalsIgnoreCase(type)) {
+                    Movie movie = contentService.getAllMovies().stream()
+                            .filter(m -> m.getTitle().equalsIgnoreCase(title))
+                            .findFirst()
+                            .orElse(null);
+                    if (movie != null) {
+                        watchList.addMovie(movie);
+                    } else {
+                        System.out.println("Filmul " + title + " nu a fost găsit în ContentService.");
+                    }
+                } else if ("Serial".equalsIgnoreCase(type)) {
+                    Serial serial = contentService.getAllSerials().stream()
+                            .filter(s -> s.getTitle().equalsIgnoreCase(title))
+                            .findFirst()
+                            .orElse(null);
+                    if (serial != null) {
+                        watchList.addSerial(serial);
+                    } else {
+                        System.out.println("Serialul " + title + " nu a fost găsit în ContentService.");
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Watchlist file not found: " + fileName + ". Starting with an empty watchlist.");
+        } catch (IOException e) {
+            System.out.println("Error loading watchlist: " + e.getMessage());
+        }
+        return watchList;
+    }
+
+    /**
      * Salvează lista de utilizatori într-un fișier CSV.
      *
      * @param users    Lista de utilizatori de salvat.
@@ -188,4 +258,31 @@ public class DataManager {
             System.out.println("Error saving users: " + e.getMessage());
         }
     }
+
+    /**
+     * Încarcă lista de utilizatori dintr-un fișier CSV.
+     *
+     * @param fileName Calea către fișierul CSV.
+     * @return Lista de utilizatori încărcată.
+     */
+    public static List<User> loadUsers(String fileName) {
+        List<User> users = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line = reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] filds = line.split(",");
+                String username = filds[0];
+                String password = filds[1];
+                String accountType = filds[2];
+
+                Account account = "Premium".equalsIgnoreCase(accountType) ? new PremiumAccount() : new FreeAccount();
+                users.add(new User(username, password, account));
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading users: " + e.getMessage());
+        }
+        return users;
+    }
+
+
 }

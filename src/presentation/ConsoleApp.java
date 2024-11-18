@@ -49,9 +49,7 @@ public class ConsoleApp {
         serials.forEach(contentService::addSerial);
 
         topList = new TopList();
-
-        topList.updateTopMovies(movies);
-        topList.updateTopSerials(serials);
+        updateTopList();
 
     }
 
@@ -65,7 +63,7 @@ public class ConsoleApp {
 
             DataManager.saveHistoryList(
                     userController.getCurrentUser().getHistoryList(),
-                    "history_" + username + ".csv");
+                    "historylist_" + username + ".csv");
 
             DataManager.saveWatchList(
                     userController.getCurrentUser().getWatchList(),
@@ -125,6 +123,7 @@ public class ConsoleApp {
 
         if (userService.userExists(username)) {
             System.out.println("An Account with this name already exists! Please log in.");
+            return;
         }
 
         System.out.println("Choose account type:\n1. Free Account\n2. Premium Account");

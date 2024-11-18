@@ -80,6 +80,7 @@ public class UserController {
         }
     }
 
+    //Clasa Coplexa
     public void removeFromWatchList(Object content) {
        if (currentUser != null) {
            if (content instanceof Movie) {
@@ -116,7 +117,7 @@ public class UserController {
             currentUser.getHistoryList().addContent(movie.getTitle(), "Movie");
         }
     }
-
+    // Clasa complexa.
     public void watchSerial(Serial serial, Episode episode) {
         if (currentUser != null) {
             System.out.println("Now playing episode:" + episode.getEpisodeName() + " of Serial: " + serial.getTitle() + " with EpisodeNumber: " + episode.getEpisodeNumber());

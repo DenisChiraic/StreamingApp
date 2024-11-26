@@ -1,5 +1,6 @@
 package service;
 
+import controller.DataManager;
 import model.User;
 import repository.IRepo;
 
@@ -53,6 +54,33 @@ public class UserService {
             System.out.println("User registered successfully");
         }
     }
+
+    /**
+     * Șterge un utilizator pe baza numelui de utilizator.
+     *
+     * @param username Numele utilizatorului de șters.
+     * @return `true` dacă utilizatorul a fost găsit și șters, altfel `false`.
+     */
+    /**
+     * Șterge un utilizator pe baza numelui de utilizator.
+     *
+     * @param username Numele utilizatorului de șters.
+     * @return `true` dacă utilizatorul a fost găsit și șters, altfel `false`.
+     */
+    public boolean deleteUser(String username) {
+        Optional<User> userToDelete = userRepo.findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
+
+        if (userToDelete.isPresent()) {
+            userRepo.delete(userToDelete.get().getId());
+            DataManager.saveUsers(userRepo.findAll(), "users.csv");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     /**
      * Verifică dacă un utilizator există în sistem pe baza numelui de utilizator.

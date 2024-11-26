@@ -11,6 +11,7 @@ public class User {
     private String username;
     private String password;
     private Account account;
+    private boolean isAdmin;
     private WatchList watchList;
     private HistoryList historyList;
 
@@ -22,11 +23,12 @@ public class User {
      * @param account  Tipul de cont asociat utilizatorului.
      *
      */
-    public User(String username, String password, Account account) {
+    public User(String username, String password, Account account, boolean isAdmin) {
         this.id = UUID.randomUUID();
         this.username = username;
         this.password = password;
         this.account = account;
+        this.isAdmin = isAdmin;
         this.watchList = new WatchList();
         this.historyList = new HistoryList();
     }
@@ -48,6 +50,10 @@ public class User {
         this.account = account;
         this.watchList = watchList;
         this.historyList = historyList;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
     }
 
     /**

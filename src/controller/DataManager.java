@@ -3,18 +3,25 @@ package controller;
 
 import model.*;
 import model.Serial;
+import repository.IRepo;
 import service.ContentService;
 
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Clas DataManager gestionează încărcarea și salvarea datelor din/în fișiere CSV.
  */
 public class DataManager {
     private static ContentService contentService;
+
+    public static void initializeContentService(IRepo<Movie> movieRepo, IRepo<Serial> serialRepo) {
+        contentService = new ContentService(movieRepo, serialRepo);
+    }
     /**
      * Salvează o listă de filme într-un fișier CSV.
      *
@@ -126,107 +133,199 @@ public class DataManager {
     }
 
     /**
-     * Salvează istoricul vizionărilor (HistoryList) într-un fișier CSV.
+     * Salvează istoricul vizionărilor pentru utilizatorul curent în fișierul CSV,
+     * inclusiv toate detaliile despre elementele din istoric.
      *
-     * @param historyList Lista de istoric de salvat.
-     * @param fileName    Calea către fișierul CSV unde datele vor fi salvate.
+     * @param historyList Obiectul HistoryList de salvat.
+     * @param fileName    Numele fișierului CSV.
+     * @param username    Numele utilizatorului curent.
      */
-    public static void saveHistoryList(HistoryList historyList, String fileName) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write("Title,Type,ViewDate");
-            writer.newLine();
+    public static void saveHistoryList(HistoryList historyList, String fileName, String username) {
+        try {
+            File file = new File(fileName);
+            List<String> lines = new ArrayList<>();
+
+            boolean isUserSection = false;
+            boolean userSectionFound = false;
+
+            if (file.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+
+                        if (line.startsWith("User:" + username)) {
+                            isUserSection = true;
+                            userSectionFound = true;
+                        }
+
+                        if (isUserSection) {
+
+                            if (line.startsWith("User:") && !line.equals("User:" + username)) {
+                                isUserSection = false;  // Ieșim din secțiunea utilizatorului
+                            }
+                            lines.add(line);
+                        } else {
+                            lines.add(line);
+                        }
+                    }
+                }
+            }
+
+            if (!userSectionFound) {
+                lines.add("User:" + username);
+            }
 
             for (HistoryItem item : historyList.getHistory()) {
-                String line = String.format("%s,%s,%s",
+                lines.add(String.format("%s,%s,%s",
                         item.getTitle(),
                         item.getType(),
-                        item.getViewedDate());
-                writer.write(line);
-                writer.newLine();
+                        item.getViewedDate()));
             }
-        }catch (IOException e) {
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                for (String line : lines) {
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+        } catch (IOException e) {
             System.out.println("Error saving history list: " + e.getMessage());
         }
     }
 
     /**
-     * Încarcă istoricul vizionărilor (HistoryList) dintr-un fișier CSV.
+     * Încarcă istoricul vizionărilor pentru utilizatorul curent din fișierul CSV,
+     * completând toate detaliile direct din fișier.
      *
-     * @param fileName Calea către fișierul CSV.
-     * @return Istoricul vizionărilor sub formă de `HistoryList`.
+     * @param fileName Numele fișierului CSV.
+     * @param username Numele utilizatorului curent.
+     * @return Obiectul HistoryList reconstruit pentru utilizatorul curent.
      */
-    public static HistoryList loadHistoryList(String fileName) {
+    public static HistoryList loadHistoryList(String fileName, String username) {
         HistoryList historyList = new HistoryList();
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line = reader.readLine(); // Sari peste header
+            String line;
+            boolean isUserSection = false;
+
             while ((line = reader.readLine()) != null) {
-                String[] fields = line.split(",");
-                if (fields.length == 2) {
-                    String title = fields[0];
-                    String type = fields[1];
-                    historyList.addContent(title,type);
+                if (line.startsWith("User:" + username)) {
+                    isUserSection = true;
+                    continue;
+                }
+
+                if (line.startsWith("User:") && isUserSection) {
+                    isUserSection = false;
+                }
+
+                if (isUserSection) {
+                    String[] fields = line.split(",", -1);
+                    if (fields.length == 3) {
+                        String title = fields[0];
+                        String type = fields[1];
+                        String viewedDate = fields[2];
+                        historyList.addContent(title, type);
+                    }
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("History file not found: " + fileName + ". Starting with an empty history.");
         } catch (IOException e) {
             System.out.println("Error loading history list: " + e.getMessage());
         }
         return historyList;
     }
 
-    public static void saveWatchList(WatchList watchList, String fileName) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write("Type,Title");
-            writer.newLine();
+    public static void saveWatchList(WatchList watchList, String fileName, String username) {
+        try {
+            File file = new File(fileName);
+            List<String> lines = new ArrayList<>();
 
-            for (Movie movie : watchList.getMovies()) {
-                String line = String.format("Movie,%s", movie.getTitle());
-                writer.write(line);
-                writer.newLine();
+            boolean isUserSection = false;
+            boolean userSectionFound = false;
+
+            if (file.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("User:" + username)) {
+                            isUserSection = true;
+                            userSectionFound = true;
+                        }
+
+                        if (isUserSection) {
+                            if (line.startsWith("User:") && !line.equals("User:" + username)) {
+                                isUserSection = false;
+                            }
+
+                            lines.add(line);
+                        } else {
+                            lines.add(line);
+                        }
+                    }
+                }
             }
 
+            if (!userSectionFound) {
+                lines.add("User:" + username);
+            }
+
+            for (Movie movie : watchList.getMovies()) {
+                lines.add(String.format("Movie,%s", movie.getTitle()));
+            }
             for (Serial serial : watchList.getSerials()) {
-                String line = String.format("Serial,%s", serial.getTitle());
-                writer.write(line);
-                writer.newLine();
+                lines.add(String.format("Serial,%s", serial.getTitle()));
+            }
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                for (String line : lines) {
+                    writer.write(line);
+                    writer.newLine();
+                }
             }
         } catch (IOException e) {
             System.out.println("Error saving watch list: " + e.getMessage());
         }
     }
 
+
     /**
      * Încarcă lista de vizionări (WatchList) dintr-un fișier CSV.
      */
-    public static WatchList loadWatchList(String fileName) {
+    public static WatchList loadWatchList(String fileName, String username) {
         WatchList watchList = new WatchList();
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line = reader.readLine();
-            while ((line = reader.readLine()) != null) {
-                String[] filds = line.split(",");
-                String type = filds[0];
-                String title = filds[1];
+            String line;
+            boolean isUserSection = false;
 
-                if ("Movie".equalsIgnoreCase(type)) {
-                    Movie movie = contentService.getAllMovies().stream()
-                            .filter(m -> m.getTitle().equalsIgnoreCase(title))
-                            .findFirst()
-                            .orElse(null);
-                    if (movie != null) {
-                        watchList.addMovie(movie);
-                    } else {
-                        System.out.println("Filmul " + title + " nu a fost găsit în ContentService.");
-                    }
-                } else if ("Serial".equalsIgnoreCase(type)) {
-                    Serial serial = contentService.getAllSerials().stream()
-                            .filter(s -> s.getTitle().equalsIgnoreCase(title))
-                            .findFirst()
-                            .orElse(null);
-                    if (serial != null) {
-                        watchList.addSerial(serial);
-                    } else {
-                        System.out.println("Serialul " + title + " nu a fost găsit în ContentService.");
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("User:" + username)) {
+                    isUserSection = true;
+                    continue;
+                }
+
+                if (line.startsWith("User:") && isUserSection) {
+                    isUserSection = false;
+                }
+
+                if (isUserSection) {
+                    String[] fields = line.split(",", -1);
+                    String type = fields[0];
+                    String title = fields[1];
+
+                    if ("Movie".equalsIgnoreCase(type)) {
+                        Movie movie = contentService.getAllMovies().stream()
+                                .filter(m -> m.getTitle().equalsIgnoreCase(title))
+                                .findFirst()
+                                .orElse(null);
+                        if (movie != null) {
+                            watchList.addMovie(movie);
+                        }
+                    } else if ("Serial".equalsIgnoreCase(type)) {
+                        Serial serial = contentService.getAllSerials().stream()
+                                .filter(s -> s.getTitle().equalsIgnoreCase(title))
+                                .findFirst()
+                                .orElse(null);
+                        if (serial != null) {
+                            watchList.addSerial(serial);
+                        }
                     }
                 }
             }
@@ -246,43 +345,57 @@ public class DataManager {
      */
     public static void saveUsers(List<User> users, String fileName) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write("Username,Password,AccountType");
+            writer.write("Username,Password,AccountType,Role");
             writer.newLine();
 
             for (User user : users) {
                 String accountType = user.getAccount() instanceof PremiumAccount ? "Premium" : "Free";
-                writer.write(String.format("%s,%s,%s", user.getUsername(), user.getPassword(), accountType));
+                String role = user.isAdmin() ? "Admin" : "Customer";
+                writer.write(String.format("%s,%s,%s,%s",
+                        user.getUsername(),
+                        user.getPassword(),
+                        accountType,
+                        role));
                 writer.newLine();
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("Error saving users: " + e.getMessage());
         }
     }
 
+
     /**
-     * Încarcă lista de utilizatori dintr-un fișier CSV.
+     * Încarcă utilizatorii dintr-un fișier CSV, incluzând tipul de cont și rolul.
      *
-     * @param fileName Calea către fișierul CSV.
+     * @param fileName Numele fișierului CSV.
      * @return Lista de utilizatori încărcată.
      */
     public static List<User> loadUsers(String fileName) {
         List<User> users = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line = reader.readLine();
+            String line = reader.readLine(); // Sărim peste header
             while ((line = reader.readLine()) != null) {
-                String[] filds = line.split(",");
-                String username = filds[0];
-                String password = filds[1];
-                String accountType = filds[2];
+                String[] fields = line.split(",", -1); // Separăm câmpurile
+                String username = fields[0];
+                String password = fields[1];
+                String accountType = fields[2];
+                String role = fields[3];
 
+                // Creăm tipul de cont
                 Account account = "Premium".equalsIgnoreCase(accountType) ? new PremiumAccount() : new FreeAccount();
-                users.add(new User(username, password, account));
+
+                // Determinăm dacă utilizatorul este Admin
+                boolean isAdmin = "Admin".equalsIgnoreCase(role);
+
+                // Adăugăm utilizatorul în listă
+                users.add(new User(username, password, account, isAdmin));
             }
         } catch (IOException e) {
             System.out.println("Error loading users: " + e.getMessage());
         }
         return users;
     }
+
 
 
 }

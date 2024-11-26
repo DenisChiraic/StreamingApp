@@ -48,8 +48,8 @@ public class UserController {
             currentUser = user.get();
             System.out.println("Login successful");
 
-            currentUser.setWatchList(DataManager.loadWatchList("watchlist_" + currentUser.getUsername() + ".csv"));
-            currentUser.setHistoryList(DataManager.loadHistoryList("historylist_" + currentUser.getUsername() + ".csv"));
+            currentUser.setWatchList(DataManager.loadWatchList("watchlist.csv", username));
+            currentUser.setHistoryList(DataManager.loadHistoryList("historylist.csv", username));
 
             return true;
         } else {
@@ -58,17 +58,19 @@ public class UserController {
         }
     }
 
-    public void logout() {
-       if (currentUser != null) {
-           DataManager.saveWatchList(currentUser.getWatchList(), "watchlist_" + currentUser.getUsername() + ".csv");
-           DataManager.saveHistoryList(currentUser.getHistoryList(), "historylist_" + currentUser.getUsername() + ".csv");
 
-           currentUser = null;
-           System.out.println("Logout successful");
-       } else {
-           System.out.println("No user is currently logged in");
-       }
+    public void logout() {
+        if (currentUser != null) {
+            DataManager.saveWatchList(currentUser.getWatchList(), "watchlist.csv", currentUser.getUsername());
+            DataManager.saveHistoryList(currentUser.getHistoryList(), "historylist.csv", currentUser.getUsername());
+
+            currentUser = null;
+            System.out.println("Logout successful");
+        } else {
+            System.out.println("No user is currently logged in");
+        }
     }
+
 
     public void addToWatchList(Object content) {
         if (currentUser != null) {
@@ -107,6 +109,10 @@ public class UserController {
         }
     }
 
+    public boolean deleteUser(String username) {
+        return userService.deleteUser(username);
+    }
+
     public User getCurrentUser() {
         return currentUser;
     }
@@ -115,15 +121,20 @@ public class UserController {
         if (currentUser != null) {
             System.out.println("Now playing " + movie.getTitle());
             currentUser.getHistoryList().addContent(movie.getTitle(), "Movie");
+        } else {
+            System.out.println("Please log in first.");
         }
     }
+
     // Clasa complexa.
     public void watchSerial(Serial serial, Episode episode) {
         if (currentUser != null) {
             System.out.println("Now playing episode:" + episode.getEpisodeName() + " of Serial: " + serial.getTitle() + " with EpisodeNumber: " + episode.getEpisodeNumber());
-            currentUser.getHistoryList().addContent(serial.getTitle(), "Episode");
+            currentUser.getHistoryList().addContent(serial.getTitle(), "Episode" + episode.getEpisodeNumber());
+        } else {
+            System.out.println("Please log in first.");
         }
-
     }
+
 
 }

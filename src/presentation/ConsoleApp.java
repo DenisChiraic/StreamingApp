@@ -8,6 +8,7 @@ import service.ContentService;
 import service.UserService;
 import model.TopList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -40,6 +41,8 @@ public class ConsoleApp {
         contentService = new ContentService(new InMemoryRepo<>(), new InMemoryRepo<>());
         userController = new UserController(userService, contentService);
 
+        DataManager.initializeContentService(new InMemoryRepo<>(), new InMemoryRepo<>());
+
         List<User> users = DataManager.loadUsers("users.csv");
         users.forEach(userController::registerUser);
 
@@ -50,27 +53,29 @@ public class ConsoleApp {
 
         topList = new TopList();
         updateTopList();
-
     }
 
     /**
-     * Salvează datele în fișiere la închiderea aplicației.
+     * Salvează datele în fișiere partajate la închiderea aplicației.
      */
     private void saveData() {
-
         if (userController.getCurrentUser() != null) {
             String username = userController.getCurrentUser().getUsername();
 
-            DataManager.saveHistoryList(
-                    userController.getCurrentUser().getHistoryList(),
-                    "historylist_" + username + ".csv");
-
             DataManager.saveWatchList(
                     userController.getCurrentUser().getWatchList(),
-                    "watchlist_" + username + ".csv");
+                    "watchlist.csv",
+                    username);
+
+            DataManager.saveHistoryList(
+                    userController.getCurrentUser().getHistoryList(),
+                    "historylist.csv",
+                    username);
         }
+
         DataManager.saveUsers(userService.getAllUsers(), "users.csv");
     }
+
 
     /**
      * Actualizează listele de topuri pentru filme și seriale.
@@ -88,27 +93,70 @@ public class ConsoleApp {
 
         boolean running = true;
         while (running) {
-            System.out.println("\n1. Register\n2. LogIn\n3. View Movies and Serials\n4. Add to WatchList\n5. View WatchList\n6. Remove from WatchList\n7. Watch Movie\n8. Watch Serial\n9. View History\n10. View Top 10 Movies\n11. View Top 10 Serials\n12. LogOut\n0. Exit");
-            System.out.println("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            if (userController.getCurrentUser() == null) {
+                System.out.println("\n1. Register");
+                System.out.println("2. Login");
+                System.out.println("0. Exit");
+                System.out.println("Choose an option: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine();
 
-            switch (choice) {
-                case 1 -> register();
-                case 2 -> login();
-                case 3 -> viewMoviesAndSerials();
-                case 4 ->addToWatchList();
-                case 5 -> viewWatchList();
-                case 6 -> removeFromWatchList();
-                case 7 -> watchMovie();
-                case 8 -> watchEpisode();
-                case 9 -> viewHistoryList();
-                case 10 -> viewTopMovies();
-                case 11 -> viewTopSerials();
-                case 12 -> logout();
-                case 0 -> running = false;
-                default -> System.out.println("Invalid choice");
+                switch (choice) {
+                    case 1 -> register();
+                    case 2 -> login();
+                    case 0 -> running = false;
+                    default -> System.out.println("Invalid choice");
+                }
+            } else if (userController.getCurrentUser().isAdmin()) {
+                adminMenu();
+            } else {
+                customerMenu();
             }
+        }
+    }
+    private void customerMenu() {
+        System.out.println("\nCustomer Menu:" +
+                "\n1. View available Movies and Serial\n2. Add to WatchList\n3.Remove from WatchList\n4.Watch a Movie\n5.Watch a Serial\n6. View HistoryList\n7. View WatchList\n8. View TopMovies\n9. TopSerials\n10. Exit");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (choice) {
+            case 1 -> viewMoviesAndSerials();
+            case 2 -> addToWatchList();
+            case 3 -> removeFromWatchList();
+            case 4 -> watchMovie();
+            case 5 -> watchEpisode();
+            case 6 -> viewHistoryList();
+            case 7 -> viewWatchList();
+            case 8 -> viewTopMovies();
+            case 9 -> viewTopSerials();
+            case 10 -> logout();
+            default -> System.out.println("Invalid choice");
+        }
+
+    }
+
+    private void adminMenu() {
+        System.out.println("\nAdmin Menu:");
+        System.out.println("1. Delete User");
+        System.out.println("2. Add Movie");
+        System.out.println("3. Add Serial");
+        System.out.println("4. Remove Movie");
+        System.out.println("5. Remove Serial");
+        System.out.println("6. Exit");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (choice) {
+            case 1 -> deleteUser();
+            case 2 -> addMovie();
+            case 3 -> addSerial();
+            case 4 -> removeMovie();
+            case 5 -> removeSerial();
+            case 6 -> logout();
+            default -> System.out.println("Invalid choice");
         }
     }
 
@@ -126,6 +174,13 @@ public class ConsoleApp {
             return;
         }
 
+        System.out.println("Choose the type of the user:");
+        System.out.println("\n1. Customer\n2 Admin");
+        int userType = scanner.nextInt();
+        scanner.nextLine();
+
+        boolean isAdmin = userType == 2;
+
         System.out.println("Choose account type:\n1. Free Account\n2. Premium Account");
         int accountType = scanner.nextInt();
         scanner.nextLine();
@@ -140,7 +195,7 @@ public class ConsoleApp {
             return;
         }
         // Creăm un nou utilizator și îl adăugăm în UserService
-        User newUser = new User(username, password, account);
+        User newUser = new User(username, password, account, isAdmin);
         userController.registerUser(newUser);
 
         System.out.println("Registration successful");
@@ -154,8 +209,115 @@ public class ConsoleApp {
         String username = scanner.nextLine();
         System.out.println("Password: ");
         String password = scanner.nextLine();
-        userController.login(username, password);
+
+        if (userController.login(username, password)) {
+            User currentUser = userController.getCurrentUser();
+            currentUser.setWatchList(DataManager.loadWatchList("watchlist.csv", username));
+            currentUser.setHistoryList(DataManager.loadHistoryList("historylist.csv", username));
+        }
     }
+
+
+    private void deleteUser() {
+        System.out.println("Enter Username: ");
+        String username = scanner.nextLine();
+
+        boolean success = userController.deleteUser(username);
+        if (success) {
+            List<User> users = userService.getUserRepo().findAll();
+            DataManager.saveUsers(users, "users.csv");
+
+            System.out.println("User deleted successfully");
+        } else {
+            System.out.println("User not found");
+        }
+    }
+
+
+    private void addMovie() {
+        System.out.println("Enter Title: ");
+        String title = scanner.nextLine();
+        System.out.println("Enter Movie Duration: ");
+        int duration = scanner.nextInt();
+        System.out.println("Enter Rating: ");
+        double rating = scanner.nextDouble();
+        scanner.nextLine();
+
+        Movie movie = new Movie(title, duration, rating);
+        contentService.addMovie(movie);
+
+        // Salvăm lista actualizată de filme în fișier
+        List<Movie> movies = contentService.getAllMovies();
+        DataManager.saveMovies(movies, "movies.csv");
+
+        System.out.println("Movie added successfully");
+    }
+
+
+    private void removeMovie() {
+        System.out.println("Enter The Movie To Remove: ");
+        String name = scanner.nextLine();
+
+        boolean success = contentService.removeMovie(name);
+        if (success) {
+            List<Movie> movies = contentService.getAllMovies();
+            DataManager.saveMovies(movies, "movies.csv");
+
+            System.out.println("Movie removed successfully");
+        } else {
+            System.out.println("Movie not found");
+        }
+    }
+
+
+    private void addSerial() {
+        System.out.println("Enter The Serial To Add: ");
+        String serialTitle = scanner.nextLine();
+        System.out.println("Enter Serial Rating: ");
+        double rating = scanner.nextDouble();
+        scanner.nextLine();
+
+        List<Episode> episodes = new ArrayList<>();
+        boolean adding = true;
+        while (adding) {
+            System.out.println("Enter the name of the episode: ");
+            String episodeName = scanner.nextLine();
+            System.out.println("Enter the episode number: ");
+            int episodeNumber = scanner.nextInt();
+            scanner.nextLine();
+
+            episodes.add(new Episode(episodeName, episodeNumber));
+            System.out.println("Do you want to add another episode (yes/no): ");
+            String response = scanner.nextLine();
+            adding = response.equalsIgnoreCase("yes");
+        }
+
+        Serial serial = new Serial(serialTitle, episodes, rating);
+        contentService.addSerial(serial);
+
+        List<Serial> serials = contentService.getAllSerials();
+        DataManager.saveSerials(serials, "serials.csv");
+
+        System.out.println("Serial added successfully");
+    }
+
+
+    private void removeSerial() {
+        System.out.println("Enter the name of the Serial: ");
+        String title = scanner.nextLine();
+
+        boolean success = contentService.removeSerial(title);
+        if (success) {
+            // Salvăm lista actualizată de seriale în fișier
+            List<Serial> serials = contentService.getAllSerials();
+            DataManager.saveSerials(serials, "serials.csv");
+
+            System.out.println("Serial removed successfully");
+        } else {
+            System.out.println("Serial not found");
+        }
+    }
+
 
     /**
      * Afișează toate filmele și serialele disponibile.
@@ -356,8 +518,14 @@ public class ConsoleApp {
      * Permite utilizatorului să se deconecteze din sistem.
      */
     private void logout() {
-        userController.logout();
+        if (userController.getCurrentUser() != null) {
+            String username = userController.getCurrentUser().getUsername();
+            userController.logout();
+        } else {
+            System.out.println("No user is currently logged in");
+        }
     }
+
 
     /**
      * Metoda principală care pornește aplicația.

@@ -1,1 +1,3 @@
-Username,Password,AccountType
+Username,Password,AccountType,Role
+Denis,1234,Premium,Admin
+Raul,1234,Premium,Customer

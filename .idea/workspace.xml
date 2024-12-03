@@ -6,21 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="87f60f7c-2dd6-4371-aaed-8c860e74daa8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/JavaStreamingApp/controller/DataManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/JavaStreamingApp/controller/DataManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/JavaStreamingApp/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/JavaStreamingApp/controller/UserController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/JavaStreamingApp/model/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/JavaStreamingApp/model/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/JavaStreamingApp/presentation/ConsoleApp.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/JavaStreamingApp/presentation/ConsoleApp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/JavaStreamingApp/service/ContentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/JavaStreamingApp/service/ContentService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/JavaStreamingApp/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/JavaStreamingApp/service/UserService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/DataManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/DataManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/movies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/movies.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/presentation/ConsoleApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/presentation/ConsoleApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/serials.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/serials.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/ContentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/ContentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/users.csv" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,6 +88,8 @@
       <workItem from="1732545431590" duration="2876000" />
       <workItem from="1732561183748" duration="2651000" />
       <workItem from="1732636323153" duration="12544000" />
+      <workItem from="1733232223490" duration="24000" />
+      <workItem from="1733232258732" duration="87000" />
     </task>
     <servers />
   </component>

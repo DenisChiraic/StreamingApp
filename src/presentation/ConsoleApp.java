@@ -72,7 +72,6 @@ public class ConsoleApp {
                     "historylist.csv",
                     username);
         }
-
         DataManager.saveUsers(userService.getAllUsers(), "users.csv");
     }
 

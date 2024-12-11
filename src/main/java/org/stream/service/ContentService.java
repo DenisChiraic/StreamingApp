@@ -3,6 +3,8 @@ package org.stream.service;
 import org.stream.model.Episode;
 import org.stream.model.Movie;
 import org.stream.model.Serial;
+import org.stream.model.exceptions.EntityNotFoundException;
+import org.stream.model.exceptions.ValidationException;
 import org.stream.repository.DatabaseRepo;
 
 import java.util.Comparator;
@@ -32,6 +34,9 @@ public class ContentService {
      * @param movie Filmul care urmează a fi adăugat.
      */
     public void addMovie(Movie movie) {
+        if (movie == null) {
+            throw new ValidationException("Movie is null");
+        }
         movieRepo.save(movie);
     }
 
@@ -40,10 +45,10 @@ public class ContentService {
      * @param title Titlul filmului care urmează a fi eliminat.
      */
     public void removeMovie(String title) {
-        movieRepo.findAll().stream()
-                .filter(movie -> movie.getTitle().equals(title))
-                .findFirst()
-                .ifPresent(movie -> movieRepo.delete(movie.getId()));
+        Movie movie = getMovieByTitle(title);
+        if (movie == null) {
+            throw new EntityNotFoundException("Movie with title " + title + " not found");
+        }
     }
 
     /**
@@ -51,6 +56,9 @@ public class ContentService {
      * @param serial Serialul care urmează a fi adăugat.
      */
     public void addSerial(Serial serial) {
+        if (serial == null) {
+            throw new ValidationException("Serial is null");
+        }
         serialRepo.save(serial);
     }
 
@@ -59,10 +67,11 @@ public class ContentService {
      * @param title Titlul serialului care urmează a fi eliminat.
      */
     public void removeSerial(String title) {
-        serialRepo.findAll().stream()
-                .filter(serial -> serial.getTitle().equals(title))
-                .findFirst()
-                .ifPresent(serial -> serialRepo.delete(serial.getId()));
+        Serial serial = getSerialByTitle(title);
+        if (serial == null) {
+            throw new EntityNotFoundException("Serial with title " + title + " not found");
+        }
+        serialRepo.delete(serial.getId());
     }
 
     /**
@@ -92,7 +101,11 @@ public class ContentService {
      * @return Lista cu toate filmele.
      */
     public List<Movie> getAllMovies() {
-        return movieRepo.findAll();
+        List<Movie> movies = movieRepo.findAll();
+        if (movies.isEmpty()) {
+            throw new EntityNotFoundException("No movies available now");
+        }
+        return movies;
     }
 
     /**
@@ -100,7 +113,11 @@ public class ContentService {
      * @return Lista cu toate serialele.
      */
     public List<Serial> getAllSerials() {
-        return serialRepo.findAll();
+        List<Serial> serials = serialRepo.findAll();
+        if (serials.isEmpty()) {
+            throw new EntityNotFoundException("No serial available now");
+        }
+        return serials;
     }
 
     /**
@@ -135,12 +152,12 @@ public class ContentService {
      */
     public Episode getNextEpisode(Serial serial, Episode currentEpisode) {
         if (serial == null || currentEpisode == null || serial.getEpisodes() == null) {
-            return null;
+            throw new ValidationException("The serial or current episode is null!");
         }
         int currentIndex = serial.getEpisodes().indexOf(currentEpisode);
-        if (currentIndex != -1 && currentIndex + 1 < serial.getEpisodes().size()) {
-            return serial.getEpisodes().get(currentIndex + 1);
+        if (currentIndex == -1 || currentIndex + 1 >= serial.getEpisodes().size()) {
+            throw new EntityNotFoundException("There is no other episode.");
         }
-        return null;
+        return serial.getEpisodes().get(currentIndex + 1);
     }
 }

@@ -3,6 +3,9 @@ package org.stream.service;
 import org.stream.model.FreeAccount;
 import org.stream.model.PremiumAccount;
 import org.stream.model.User;
+import org.stream.model.exceptions.BusinessLogicException;
+import org.stream.model.exceptions.EntityNotFoundException;
+import org.stream.model.exceptions.ValidationException;
 import org.stream.model.mappers.UserMapper;
 import org.stream.repository.DatabaseRepo;
 
@@ -39,11 +42,12 @@ public class UserService {
      * Înregistrează un nou utilizator.
      * Verifică dacă utilizatorul există deja și dacă limita de conturi pentru tipul de cont (Free sau Premium) a fost atinsă.
      * @param newUser Utilizatorul care urmează a fi înregistrat.
-     * @throws IllegalArgumentException Dacă username-ul este deja utilizat de un alt utilizator.
+     * @throws ValidationException Dacă username-ul este deja utilizat de un alt utilizator.
+     * @throws BusinessLogicException Dacă limita de conturi pentru tipul de cont a fost atinsă.
      */
     public void registerUser(User newUser) {
         if (userExists(newUser.getUsername())) {
-            throw new IllegalArgumentException("Username-ul este deja folosit.");
+            throw new ValidationException("Username already exists");
         }
 
         long userCount = userRepo.findAll().stream()
@@ -52,16 +56,16 @@ public class UserService {
 
         if ((newUser.getAccount() instanceof FreeAccount && userCount >= 1) ||
                 (newUser.getAccount() instanceof PremiumAccount && userCount >= 5)) {
-            System.out.println("Limita de conturi a fost atinsă pentru " + newUser.getAccount().getType());
-        } else {
-            userRepo.create(newUser);
-            System.out.println("Utilizator înregistrat cu succes");
+            throw new BusinessLogicException("User account limit reached for " + newUser.getAccount().getType());
         }
+
+        userRepo.create(newUser);
     }
 
     /**
      * Șterge un utilizator pe baza numelui de utilizator.
      * @param username Numele de utilizator al utilizatorului de șters.
+     * @throws EntityNotFoundException Dacă utilizatorul nu există.
      */
     public void deleteUser(String username) {
         Optional<User> userToDelete = findByUsername(username);
@@ -69,9 +73,8 @@ public class UserService {
         if (userToDelete.isPresent()) {
             UUID userId = userToDelete.get().getId();
             userRepo.delete(userId);
-            System.out.println("User with username " + username + " deleted successfully.");
         } else {
-            System.out.println("User with username " + username + " not found.");
+            throw new EntityNotFoundException("User with username " + username + " not found.");
         }
     }
 

@@ -1,6 +1,7 @@
 package org.stream.controller;
 
 import org.stream.model.*;
+import org.stream.model.exceptions.*;
 import org.stream.service.ContentService;
 import org.stream.service.SessionService;
 import org.stream.service.UserService;
@@ -34,7 +35,11 @@ public class UserController {
      * @param newUser Utilizatorul care urmează a fi înregistrat.
      */
     public void registerUser(User newUser) {
-        userService.registerUser(newUser);
+        try {
+            userService.registerUser(newUser);
+        } catch (ValidationException e) {
+            throw new BusinessLogicException("Error by register the User: " + e.getMessage());
+        }
     }
 
     /**
@@ -45,13 +50,16 @@ public class UserController {
      * @return true dacă autentificarea a fost realizată cu succes, false altfel.
      */
     public boolean login(String username, String password) {
-        Optional<User> user = userService.authenticateUser(username, password);
-        if (user.isPresent()) {
-            sessionService.startSession(user.get());
-            return true;
-        } else {
-            System.out.println("Login failed");
-            return false;
+        try {
+            Optional<User> user = userService.authenticateUser(username, password);
+            if (user.isPresent()) {
+                sessionService.startSession(user.get());
+                return true;
+            } else {
+                throw new EntityNotFoundException("Log in failed. User not found. Pleas register");
+            }
+        } catch (ValidationException e) {
+            throw new BusinessLogicException("Invalid data" + e.getMessage());
         }
     }
 
@@ -63,7 +71,7 @@ public class UserController {
         if (sessionService.isUserLoggedIn()) {
             sessionService.endSession();
         } else {
-            System.out.println("No user is currently logged in");
+            throw new BusinessLogicException("No user logged in.");
         }
     }
 
@@ -72,16 +80,20 @@ public class UserController {
      * @param content Conținutul care urmează a fi adăugat.
      */
     public void addToWatchList(Object content) {
-        if (sessionService.isUserLoggedIn()) {
+        if (!sessionService.isUserLoggedIn()) {
+            throw new BusinessLogicException("Pleas log in first.");
+        }
+
+        try {
             if (content instanceof Movie) {
                 sessionService.getCurrentUser().getWatchList().addMovie((Movie) content);
             } else if (content instanceof Serial) {
                 sessionService.getCurrentUser().getWatchList().addSerial((Serial) content);
             } else {
-                System.out.println("Invalid content type");
+                throw new ValidationException("Content type invalid.");
             }
-        } else {
-            System.out.println("Please log in first");
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error by adding to WatchList" + e.getMessage());
         }
     }
 
@@ -90,16 +102,20 @@ public class UserController {
      * @param content Conținutul care urmează a fi eliminat.
      */
     public void removeFromWatchList(Object content) {
-        if (sessionService.isUserLoggedIn()) {
+        if (!sessionService.isUserLoggedIn()) {
+            throw new BusinessLogicException("Log in first");
+        }
+
+        try {
             if (content instanceof Movie) {
                 sessionService.getCurrentUser().getWatchList().removeMovie((Movie) content);
             } else if (content instanceof Serial) {
                 sessionService.getCurrentUser().getWatchList().removeSerial((Serial) content);
             } else {
-                System.out.println("Invalid content type");
+                throw new ValidationException("Invalid type");
             }
-        } else {
-            System.out.println("Please log in first");
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error by removing from WatchList " + e.getMessage());
         }
     }
 
@@ -107,11 +123,10 @@ public class UserController {
      * Afișează lista de vizionare a utilizatorului curent.
      */
     public void displayWatchList() {
-        if (sessionService.isUserLoggedIn()) {
-            sessionService.getCurrentUser().getWatchList().displayWatchList();
-        } else {
-            System.out.println("Please log in first");
+        if (!sessionService.isUserLoggedIn()) {
+            throw new BusinessLogicException("Log in first");
         }
+        sessionService.getCurrentUser().getWatchList().displayWatchList();
     }
 
     /**
@@ -119,12 +134,11 @@ public class UserController {
      * @param movie Filmul care urmează a fi vizionat.
      */
     public void watchMovie(Movie movie) {
-        if (sessionService.isUserLoggedIn()) {
-            System.out.println("Now playing " + movie.getTitle());
-            sessionService.getCurrentUser().getHistoryList().addContent(movie.getTitle(), "Movie");
-        } else {
-            System.out.println("Please log in first.");
+        if (!sessionService.isUserLoggedIn()) {
+            throw new BusinessLogicException("Log in first");
         }
+        System.out.println("Now playing " + movie.getTitle());
+        sessionService.getCurrentUser().getHistoryList().addContent(movie.getTitle(), "Movie");
     }
 
     /**
@@ -133,23 +147,21 @@ public class UserController {
      * @param episode Episodul care urmează a fi vizionat.
      */
     public void watchSerial(Serial serial, Episode episode) {
-        if (sessionService.isUserLoggedIn()) {
-            System.out.println("Now playing " + episode.getEpisodeName() + " of Serial " + serial.getTitle());
-            sessionService.getCurrentUser().getHistoryList().addContent(serial.getTitle(), "Episode");
-        } else {
-            System.out.println("Please log in first.");
+        if (!sessionService.isUserLoggedIn()) {
+            throw new BusinessLogicException("Log in first");
         }
+        System.out.println("Now playing " + episode.getEpisodeName() + " of Serial " + serial.getTitle());
+        sessionService.getCurrentUser().getHistoryList().addContent(serial.getTitle(), "Episode");
     }
 
     /**
      * Afișează istoricul de vizionare al utilizatorului curent.
      */
     public void displayHistoryList() {
-        if (sessionService.isUserLoggedIn()) {
-            sessionService.getCurrentUser().getHistoryList().displayHistory();
-        } else {
-            System.out.println("Please log in first.");
+        if (!sessionService.isUserLoggedIn()) {
+            throw new BusinessLogicException("Log in first");
         }
+        sessionService.getCurrentUser().getHistoryList().displayHistory();
     }
 
     /**

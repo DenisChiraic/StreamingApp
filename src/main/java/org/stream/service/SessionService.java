@@ -1,6 +1,7 @@
 package org.stream.service;
 
 import org.stream.model.User;
+import org.stream.model.exceptions.BusinessLogicException;
 
 /**
  * Serviciul pentru gestionarea sesiunilor de utilizator.
@@ -15,6 +16,9 @@ public class SessionService {
      * @param user Utilizatorul care se autentifică.
      */
     public void startSession(User user) {
+        if (currentUser != null) {
+            throw new BusinessLogicException("An user is already logged in");
+        }
         this.currentUser = user;
         System.out.println("Login successful");
     }
@@ -24,10 +28,11 @@ public class SessionService {
      * Dacă există un utilizator autentificat, sesiunea este închisă și se afișează un mesaj de deconectare cu succes.
      */
     public void endSession() {
-        if (currentUser != null) {
-            currentUser = null;
-            System.out.println("Logout successful");
-        }
+       if (currentUser == null) {
+           throw new BusinessLogicException("No user logged in");
+       }
+       currentUser = null;
+       System.out.println("Logout successful");
     }
 
     /**
@@ -43,6 +48,9 @@ public class SessionService {
      * @return Utilizatorul curent sau null dacă nu există niciun utilizator autentificat.
      */
     public User getCurrentUser() {
+        if (currentUser == null) {
+            throw new BusinessLogicException("No user logged in");
+        }
         return currentUser;
     }
 }

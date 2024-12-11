@@ -187,4 +187,13 @@ public class UserController {
     public UserService getUserService() {
         return userService;
     }
+
+    /**
+     * Returnează utilizatorul curent autentificat.
+     * @return Utilizatorul curent.
+     */
+    public User getCurrentUser() {
+        return sessionService.getCurrentUser();
+    }
+
 }

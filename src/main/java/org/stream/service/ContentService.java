@@ -49,6 +49,7 @@ public class ContentService {
         if (movie == null) {
             throw new EntityNotFoundException("Movie with title " + title + " not found");
         }
+        movieRepo.delete(movie.getId());
     }
 
     /**

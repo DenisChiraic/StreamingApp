@@ -13,6 +13,7 @@ import org.stream.service.UserService;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -64,22 +65,78 @@ public class ConsoleApp {
         scanner.nextLine();
 
         if (roleChoice == 1) {
-            System.out.print("Enter admin username: ");
-            String adminUsername = scanner.nextLine();
-            System.out.print("Enter admin password: ");
-            String adminPassword = scanner.nextLine();
-
-            User adminUser = new User(adminUsername, adminPassword, new PremiumAccount(), true);
-            userController.registerUser(adminUser);
-
-            System.out.println("Admin user created successfully!");
-            adminMenu();
+            adminAuthenticationFlow();
         } else if (roleChoice == 2) {
             customerFlow();
         } else {
             System.out.println("Invalid choice!");
         }
     }
+
+    /**
+     * Fluxul de autentificare sau înregistrare pentru un utilizator de tip admin.
+     */
+    private void adminAuthenticationFlow() {
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\nAdmin Options:");
+            System.out.println("1. Register");
+            System.out.println("2. Login");
+            System.out.println("0. Back to Main Menu");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1 -> registerAdmin();
+                case 2 -> {
+                    if (loginAdmin()) {
+                        adminMenu();
+                    }
+                }
+                case 0 -> running = false;
+                default -> System.out.println("Invalid choice");
+            }
+        }
+    }
+
+    /**
+     * Permite înregistrarea unui utilizator de tip admin.
+     */
+    private void registerAdmin() {
+        System.out.print("Enter admin username: ");
+        String adminUsername = scanner.nextLine();
+        System.out.print("Enter admin password: ");
+        String adminPassword = scanner.nextLine();
+
+        User adminUser = new User(adminUsername, adminPassword, new PremiumAccount(), true);
+        userController.registerUser(adminUser);
+
+        System.out.println("Admin user registered successfully!");
+    }
+
+    /**
+     * Permite autentificarea unui utilizator de tip admin.
+     * @return True daca autentificarea este reusita, false altfel.
+     */
+    private boolean loginAdmin() {
+        System.out.print("Enter admin username: ");
+        String adminUsername = scanner.nextLine();
+        System.out.print("Enter admin password: ");
+        String adminPassword = scanner.nextLine();
+
+        boolean success = userController.login(adminUsername, adminPassword);
+        if (success && userController.getCurrentUser().isAdmin()) {
+            System.out.println("Admin login successful!");
+            return true;
+        } else {
+            System.out.println("Invalid admin credentials or user is not an admin.");
+            userController.logout();
+            return false;
+        }
+    }
+
 
     /**
      * Meniu specific pentru administratori, care permite adăugarea, ștergerea și gestionarea utilizatorilor și conținutului.
@@ -103,10 +160,11 @@ public class ConsoleApp {
             switch (choice) {
                 case 1 -> addMovie();
                 case 2 -> addSerial();
-                case 3 -> addUser();
-                case 4 -> deleteMovie();
-                case 5 -> deleteSerial();
-                case 6 -> deleteUser();
+                case 3 -> addEpiosdesToSerial();
+                case 4 -> addUser();
+                case 5 -> deleteMovie();
+                case 6 -> deleteSerial();
+                case 7 -> deleteUser();
                 case 0 -> running = false;
                 default -> System.out.println("Invalid choice");
             }
@@ -145,19 +203,35 @@ public class ConsoleApp {
         UUID serialId = UUID.randomUUID();
 
         List<Episode> episodes = new ArrayList<>();
-        System.out.println("Enter number of episodes: ");
-        int numberOfEpisodes = scanner.nextInt();
-        for (int i = 0; i < numberOfEpisodes; i++) {
-            System.out.println("Enter episode " + i + " name: ");
-            String name = scanner.nextLine();
-
-            episodes.add(new Episode(serialId, UUID.randomUUID(), name, i));
-        }
 
         Serial serial = new Serial(serialId, title, episodes, rating);
 
         userController.getContentService().addSerial(serial);
         System.out.println("Serial added successfully!");
+    }
+
+    private void addEpiosdesToSerial() {
+        System.out.println("Enter serial title to add episodes: ");
+        String title = scanner.nextLine();
+
+        Serial serial = userController.getContentService().getSerialByTitle(title);
+
+        if (serial == null) {
+            System.out.println("Serial not found!");
+            return;
+        }
+        System.out.println("Enter the number of episodes to add: ");
+        int numberOfEpisodes = scanner.nextInt();
+        scanner.nextLine();
+
+        for (int i = 0; i < numberOfEpisodes; i++) {
+            System.out.println("Enter episode " + (i + 1) + " title : ");
+            String episodeTitle = scanner.nextLine();
+
+            UUID episodeId = UUID.randomUUID();
+            Episode episode = new Episode(serial.getId(), episodeId, title, i + 1);
+        }
+        System.out.println("Episodes added successfully!");
     }
 
     /**

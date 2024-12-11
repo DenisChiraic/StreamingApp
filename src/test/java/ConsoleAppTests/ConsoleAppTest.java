@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.stream.controller.UserController;
 import org.stream.model.*;
+import org.stream.model.exceptions.EntityNotFoundException;
 import org.stream.service.ContentService;
 import org.stream.service.SessionService;
 import org.stream.service.UserService;
@@ -96,9 +97,11 @@ class ConsoleAppTests {
     @Test
     void testLogin_Failure() {
         when(userService.authenticateUser("wrong_user", "wrong_pass")).thenReturn(Optional.empty());
-        boolean result = userController.login("wrong_user", "wrong_pass");
-        assertFalse(result);
+        assertThrows(EntityNotFoundException.class, () ->
+                userController.login("wrong_user", "wrong_pass")
+        );
     }
+
 
     @Test
     void testDeleteMovie_Success() {

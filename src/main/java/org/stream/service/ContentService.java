@@ -6,9 +6,12 @@ import org.stream.model.Serial;
 import org.stream.model.exceptions.EntityNotFoundException;
 import org.stream.model.exceptions.ValidationException;
 import org.stream.repository.DatabaseRepo;
+import org.stream.repository.IRepo;
+import org.stream.repository.InMemoryRepo;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -19,6 +22,9 @@ public class ContentService {
     private DatabaseRepo<Movie> movieRepo;
     private DatabaseRepo<Serial> serialRepo;
 
+    private IRepo<Movie> movieRepoI;
+    private IRepo<Serial> serialRepoI;
+
     /**
      * Constructorul serviciului de conținut, care primește două repo-uri: unul pentru filme și unul pentru seriale.
      * @param movieRepo Repository-ul pentru filme.
@@ -27,6 +33,14 @@ public class ContentService {
     public ContentService(DatabaseRepo<Movie> movieRepo, DatabaseRepo<Serial> serialRepo) {
         this.movieRepo = movieRepo;
         this.serialRepo = serialRepo;
+    }
+
+    public ContentService(String storageMethod) {
+        switch (storageMethod.toLowerCase()) {
+            case "inmemory":
+                movieRepoI = new InMemoryRepo<>();
+                serialRepoI = new InMemoryRepo<>();
+        }
     }
 
     /**
@@ -72,7 +86,8 @@ public class ContentService {
         if (serial == null) {
             throw new EntityNotFoundException("Serial with title " + title + " not found");
         }
-        serialRepo.delete(serial.getId());
+        UUID serialId = serial.getId();
+        serialRepo.delete(serialId);
     }
 
     /**

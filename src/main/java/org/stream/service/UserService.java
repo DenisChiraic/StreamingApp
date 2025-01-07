@@ -26,6 +26,7 @@ public class UserService {
         this.userRepo = new DatabaseRepo<>("users", new UserMapper());
     }
 
+
     /**
      * Autentifică un utilizator pe baza numelui de utilizator și parolei.
      * @param username Numele de utilizator al utilizatorului.
@@ -51,6 +52,7 @@ public class UserService {
         }
 
         long userCount = userRepo.findAll().stream()
+                .filter(user -> user.getAccount() != null)
                 .filter(user -> user.getAccount().getType().equals(newUser.getAccount().getType()))
                 .count();
 
@@ -61,6 +63,7 @@ public class UserService {
 
         userRepo.create(newUser);
     }
+
 
     /**
      * Șterge un utilizator pe baza numelui de utilizator.

@@ -94,6 +94,10 @@ public class Serial implements Identifiable {
         return null;
     }
 
+//    public void addEpisode(Episode episode) {
+//        episodes.add(episode);
+//    }
+
     public void setId(UUID contentId) {
         this.serialId = contentId;
     }

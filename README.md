@@ -41,4 +41,4 @@ Service (Package: org.stream.service):
 
 ContentService: Hauptklasse, die die Geschäftslogik für Filme und Serien verwaltet.
 
-![image](https://github.com/user-attachments/assets/8496047c-82b8-4b87-8598-e1a7b0e8d1e8)
+![image](https://github.com/user-attachments/assets/5655f04f-7dc3-4ac5-b725-8eb7432df780)
